@@ -6,7 +6,7 @@
   :root { 
   /* Backgrounds */
   --background: 230 88% 13%;      /* #0a0e27 Main-bg */
-  --card: 234 76% 13%;             /* #0d1229 SideBar/Player*/ 
+  --card: 229 51% 10%;             /* #0d1229 SideBar/Player*/ 
   
   /* Accent colors */
   --primary: 158 88% 43%;        /* emerald green #10b981 Logo/active tabs  */
@@ -20,7 +20,7 @@
   /* Borders / special effects */
   --border: 255 255 255 / 0.1;  /* white/10 */
   --hover: 255 255 255 / 0.1;   /* hover states */
-  --glass: 255 255 255 / 0.2;   /* glass overlays */
+  --glass: 255 255 255 / 0.2;   /* glass overlays */   --sidebar-background: 0 0% 98%;   --sidebar-foreground: 240 5.3% 26.1%;   --sidebar-primary: 240 5.9% 10%;   --sidebar-primary-foreground: 0 0% 98%;   --sidebar-accent: 240 4.8% 95.9%;   --sidebar-accent-foreground: 240 5.9% 10%;   --sidebar-border: 220 13% 91%;   --sidebar-ring: 217.2 91.2% 59.8%;
 
   }
 
@@ -50,6 +50,15 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%
+  ;
+    /* --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%; */
   }
 }
 
