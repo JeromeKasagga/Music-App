@@ -10,7 +10,7 @@
   
   /* Accent colors */
   --primary: 158 88% 43%;        /* emerald green #10b981 Logo/active tabs  */
-  --secondary: 194 100% 50%;       /* cyan #06d9ff buttons/search/progress bar*/
+  --secondary: 194 100% 30%;       /* cyan #06d9ff buttons/search/progress bar*/
   --accent: 264 90% 63%;         /* purple #8b5cf6 navigation/controls*/
   
   /* Text colors */

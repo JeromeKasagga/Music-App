@@ -1,3 +1,8 @@
+// Sidebar & Main App layout
+// components
+import { TopBar } from "./components/ui/TopBar";
+import { Hero } from "./components/ui/Hero";
+
 // Sidebar
 import {
   Sidebar,
@@ -9,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
+  SidebarInset,
 } from "@/components/ui/sidebar";
 
 // icons
@@ -27,17 +33,19 @@ import {
 function AppLayout() {
   return (
     <SidebarProvider>
+      {/* The Sidebar */}
       <Sidebar>
         <SidebarContent className="bg-card text-muted w-64">
-
           <div className="mb-2 flex flex-row items-center gap-2 p-4 rounded-b-lg cursor-pointer">
-            <AudioLines className="h-10 w-10 p-1 text-white bg-emerald-500 rounded-full" /> {/* White logo */}
+            <AudioLines className="h-10 w-10 p-1 text-white bg-primary rounded-full" />{" "}
+            {/* White logo */}
             <h1 className="text-xl font-bold text-white mt-2">MusicX</h1>
           </div>
 
-
           <SidebarGroup>
-            <SidebarGroupLabel className="text-muted">Recommended</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-muted">
+              Recommended
+            </SidebarGroupLabel>
             <SidebarGroupContent className="pl-3">
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -65,7 +73,9 @@ function AppLayout() {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel className="text-muted">My Library</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-muted">
+              My Library
+            </SidebarGroupLabel>
             <SidebarGroupContent className="pl-3">
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -100,7 +110,9 @@ function AppLayout() {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel className="text-muted">Playlists</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-muted">
+              Playlists
+            </SidebarGroupLabel>
             <SidebarGroupContent className="pl-3">
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -114,6 +126,17 @@ function AppLayout() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
+
+      {/* The main app layout */}
+      <SidebarInset className="p-4 border-t border-muted/20">
+        <header>
+          <TopBar />
+        </header>
+
+        <main>
+          <Hero />
+        </main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
