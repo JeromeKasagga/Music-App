@@ -2,6 +2,7 @@
 // components
 import { TopBar } from "./components/ui/TopBar";
 import { Hero } from "./components/ui/Hero";
+import MostListened from "./components/ui/MostListened";
 
 // Sidebar
 import {
@@ -128,13 +129,14 @@ function AppLayout() {
       </Sidebar>
 
       {/* The main app layout */}
-      <SidebarInset className="p-4 border-t border-muted/20">
+      <SidebarInset className="p-4 bg-deep-blue">
         <header>
           <TopBar />
         </header>
 
-        <main>
+        <main className="min-w-0 flex-1">
           <Hero />
+          <MostListened />
         </main>
       </SidebarInset>
     </SidebarProvider>

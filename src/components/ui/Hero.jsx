@@ -4,7 +4,7 @@ import heroBg from "../../assets/hero-bg.png";
 
 export function Hero() {
   return (
-    <div className="relative w-full min-h-[40vh] p-12 rounded-3xl overflow-hidden">
+    <div className="relative w-full min-h-[35vh] p-12 rounded-3xl overflow-hidden">
       
       {/* Background image */}
       <div
