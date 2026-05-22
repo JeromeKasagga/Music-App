@@ -3,6 +3,8 @@
 import { TopBar } from "./components/ui/TopBar";
 import { Hero } from "./components/ui/Hero";
 import MostListened from "./components/ui/MostListened";
+import MusicLibrary from "./components/MusicLibrary";
+import PlayerBar from "./components/PlayerBar";
 
 // Sidebar
 import {
@@ -36,7 +38,7 @@ function AppLayout() {
     <SidebarProvider>
       {/* The Sidebar */}
       <Sidebar>
-        <SidebarContent className="bg-card text-muted w-64">
+        <SidebarContent className="bg-card text-foreground w-64">
           <div className="mb-2 flex flex-row items-center gap-2 p-4 rounded-b-lg cursor-pointer">
             <AudioLines className="h-10 w-10 p-1 text-white bg-primary rounded-full" />{" "}
             {/* White logo */}
@@ -44,7 +46,7 @@ function AppLayout() {
           </div>
 
           <SidebarGroup>
-            <SidebarGroupLabel className="text-muted">
+            <SidebarGroupLabel className="text-muted-foreground">
               Recommended
             </SidebarGroupLabel>
             <SidebarGroupContent className="pl-3">
@@ -74,7 +76,7 @@ function AppLayout() {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel className="text-muted">
+            <SidebarGroupLabel className="text-muted-foreground">
               My Library
             </SidebarGroupLabel>
             <SidebarGroupContent className="pl-3">
@@ -111,7 +113,7 @@ function AppLayout() {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel className="text-muted">
+            <SidebarGroupLabel className="text-muted-foreground">
               Playlists
             </SidebarGroupLabel>
             <SidebarGroupContent className="pl-3">
@@ -129,15 +131,26 @@ function AppLayout() {
       </Sidebar>
 
       {/* The main app layout */}
-      <SidebarInset className="p-4 bg-deep-blue">
-        <header>
+      <SidebarInset className="bg-background h-screen overflow-hidden flex flex-col relative">
+        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md">
           <TopBar />
         </header>
 
-        <main className="min-w-0 flex-1">
-          <Hero />
-          <MostListened />
+        {/* Scrollable Main Content */}
+        <main className="flex-1 overflow-y-auto relative pb-[100px]">
+          {/* Sticky Hero */}
+          <div className="sticky top-0 z-20 bg-background pb-4">
+            <Hero />
+          </div>
+
+          {/* Scrollable Content Layers */}
+          <div className="relative z-10 bg-background min-h-screen">
+            <MostListened />
+            <MusicLibrary />
+          </div>
         </main>
+
+        <PlayerBar />
       </SidebarInset>
     </SidebarProvider>
   );

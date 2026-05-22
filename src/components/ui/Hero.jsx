@@ -4,8 +4,8 @@ import heroBg from "../../assets/hero-bg.png";
 
 export function Hero() {
   return (
-    <div className="relative w-full min-h-[35vh] p-12 rounded-3xl overflow-hidden">
-      
+    <div className="relative w-full min-h-[35vh] p-12  rounded-3xl overflow-hidden">
+
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -16,21 +16,19 @@ export function Hero() {
 
       {/* Base gradient (transparent) */}
       <div className="absolute inset-0 bg-gradient-to-br 
-        from-cyan-400/70 
-        via-blue-500/60 
-        to-purple-600/70"
+        from-background/40 
+        to-background/80"
       />
 
       {/* Overlay gradient (more transparent) */}
       <div className="absolute inset-0 bg-gradient-to-r 
-        from-cyan-400/50 
-        via-blue-500/30 
-        to-purple-600/50"
+        from-background/20 
+        to-background/60"
       />
 
       {/* Content */}
       <div className="relative z-10 flex items-center justify-between h-full">
-        
+
         {/* Left */}
         <div className="flex flex-col gap-6">
           <span className="capitalize text-5xl font-bold leading-tight text-white">
@@ -38,13 +36,13 @@ export function Hero() {
           </span>
 
           <div className="flex gap-6">
-            <button className="flex items-center gap-2 bg-white text-secondary px-5 py-2 font-medium rounded-full">
-              <Play className="fill-secondary w-4 h-4" />
+            <button className="flex items-center gap-2 bg-foreground text-background px-5 py-2 font-medium rounded-full hover:bg-primary transition-colors hover:text-primary-foreground group">
+              <Play className="fill-background group-hover:fill-primary-foreground w-4 h-4 transition-colors" />
               <span>PLAY ALL</span>
             </button>
 
-            <button className="flex items-center gap-2 bg-white text-secondary px-5 py-2 font-medium rounded-full">
-              <Upload className="fill-secondary w-4 h-4" />
+            <button className="flex items-center gap-2 bg-foreground text-background px-5 py-2 font-medium rounded-full hover:bg-primary transition-colors hover:text-primary-foreground group">
+              <Upload className="fill-background group-hover:fill-primary-foreground w-4 h-4 transition-colors" />
               <span>UPLOAD</span>
             </button>
           </div>
@@ -52,11 +50,11 @@ export function Hero() {
 
         {/* Right */}
         <div className="flex flex-col gap-4">
-          <button className="p-2 bg-primary rounded-3xl w-10 h-10">
-            <Heart className="text-white" />
+          <button className="p-2 bg-primary rounded-3xl w-10 h-10 hover:bg-primary/80 transition-colors">
+            <Heart className="text-primary-foreground" />
           </button>
-          <button className="p-2 bg-primary rounded-3xl w-10 h-10">
-            <Share2 className="text-white" />
+          <button className="p-2 bg-primary rounded-3xl w-10 h-10 hover:bg-primary/80 transition-colors">
+            <Share2 className="text-primary-foreground" />
           </button>
         </div>
 
