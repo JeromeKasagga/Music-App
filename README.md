@@ -130,3 +130,9 @@ acces it here https://music-app-one-smoky.vercel.app
 - Based in Kampala, Uganda
 - Specializing in React, audio applications, and responsive design
 - [GitHub](https://github.com/JeromeKasagga) | [Portfolio](#)
+
+<img width="1173" height="452" alt="Screenshot 2026-06-15 at 19 03 13" src="https://github.com/user-attachments/assets/832faf50-6242-48f0-8e6a-9dac504eff14" />
+<img width="1173" height="452" alt="Screenshot 2026-06-15 at 19 03 09" src="https://github.com/user-attachments/assets/645016e5-ef5f-4ee3-a09e-8fd7ba4ce1ba" />
+<img width="1434" height="807" alt="Screenshot 2026-06-15 at 19 02 59" src="https://github.com/user-attachments/assets/b9d52327-ba81-439b-b63e-22cbd5c0428e" />
+<img width="1434" height="807" alt="Screenshot 2026-06-15 at 19 02 47" src="https://github.com/user-attachments/assets/ff13f023-3835-44f2-9864-7b61929725d3" />
+
