@@ -26,12 +26,12 @@ function MostListened() {
 
   const scroll = (direction) => {
     if (scrollRef.current) {
-      // Calculate width of one page (7 items + their gaps)
-      // 160px card width + 16px gap (gap-4)
+      const container = scrollRef.current;
       const itemWidth = 160 + 16;
-      const scrollAmount = itemWidth * 7;
+      const visibleItems = Math.max(1, Math.floor(container.clientWidth / itemWidth));
+      const scrollAmount = visibleItems * itemWidth;
 
-      scrollRef.current.scrollBy({
+      container.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
@@ -60,7 +60,7 @@ function MostListened() {
       <div className="w-full max-w-[1040px] overflow-hidden relative">
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-hidden scroll-smooth pb-4"
+          className="flex gap-4 overflow-x-auto scroll-smooth pb-4"
         >
           {mostPlayedSongs.map((song) => (
             <div

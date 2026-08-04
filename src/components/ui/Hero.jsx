@@ -35,13 +35,14 @@ export function Hero() {
             DREAM TOP <br /> SIX TRAIN
           </span>
 
-          <div className="flex gap-6">
-            <button className="flex items-center gap-2 bg-foreground text-background px-5 py-2 font-medium rounded-full hover:bg-primary transition-colors hover:text-primary-foreground group">
+          <div className="flex flex-row flex-wrap items-center gap-3">
+            <button className="flex-1 min-w-[120px] sm:flex-none flex items-center justify-center gap-2 bg-foreground text-background px-5 py-2 font-medium rounded-full hover:bg-primary transition-colors hover:text-primary-foreground group">
               <Play className="fill-background group-hover:fill-primary-foreground w-4 h-4 transition-colors" />
-              <span>PLAY ALL</span>
+              <span className="hidden sm:inline">PLAY ALL</span>
+              <span className="inline sm:hidden">PLAY</span>
             </button>
 
-            <button className="flex items-center gap-2 bg-foreground text-background px-5 py-2 font-medium rounded-full hover:bg-primary transition-colors hover:text-primary-foreground group">
+            <button className="flex-1 min-w-[120px] sm:flex-none flex items-center justify-center gap-2 bg-foreground text-background px-5 py-2 font-medium rounded-full hover:bg-primary transition-colors hover:text-primary-foreground group">
               <Upload className="fill-background group-hover:fill-primary-foreground w-4 h-4 transition-colors" />
               <span>UPLOAD</span>
             </button>
