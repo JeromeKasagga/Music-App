@@ -28,7 +28,7 @@ sections = [
         'Media file upload and storage: configure MEDIA_ROOT, MEDIA_URL, and FileField/FileSystemStorage or cloud storage.',
     ]),
     ('User Accounts', [
-        'Use Django’s built-in auth system for User models, plus optionally extend with a Profile model for app-specific fields.',
+        'Use Djangos built-in auth system for User models, plus optionally extend with a Profile model for app-specific fields.',
         'For API auth, learn DRF TokenAuth, SessionAuth, or JWT (Simple JWT) so the React app can log in and call protected endpoints.',
         'Account functions include signup, login, logout, password reset, user profile, and user-specific libraries.',
     ]),
