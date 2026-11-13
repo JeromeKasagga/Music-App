@@ -144,3 +144,10 @@ MAILERS = {
 
 AUTH_USER_MODEL ='accounts.User'
 
+
+# JWT AUTH
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}

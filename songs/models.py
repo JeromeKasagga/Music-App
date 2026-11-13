@@ -4,7 +4,7 @@ from django.conf import settings
 # Song model
 class Song(models.Model):
     # Link song to user who uploaded it
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='songs')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='songs', null=True, blank=True)
 
     title = models.CharField(max_length=200)
     artist = models.CharField(max_length=200)
@@ -21,4 +21,4 @@ class Song(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.artist}"
-
+    

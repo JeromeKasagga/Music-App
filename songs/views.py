@@ -17,7 +17,7 @@ class SongUploadView(APIView):
         # Get file and data from react request
         file = request.FILES.get('file')
         title = request.data.get('title', 'Unknown Title')
-        artist = request.data.get('artisy', 'Unknown Artist')
+        artist = request.data.get('artist', 'Unknown Artist')
 
         if not file:
             return Response({"error": "No audio file provided"}, status=status.HTTP_400_BAD_REQUEST)
@@ -42,10 +42,10 @@ class SongUploadView(APIView):
             )
 
             # Get the public url
-            public_url = supabase.storage.from_("music_files").get_public_url(unique_filename)
+            public_url = supabase.storage.from_("music-files").get_public_url(unique_filename)
 
             # save to db
-            song = Song.objects.creates(
+            song = Song.objects.create(
                 title=title,
                 artist=artist,
                 file_url=public_url,
