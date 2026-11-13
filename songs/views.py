@@ -11,7 +11,7 @@ import time
 
 class SongUploadView(APIView):
     # check if the user is logged in
-    # permission_classes = IsAuthenticated
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         # Get file and data from react request
@@ -49,7 +49,7 @@ class SongUploadView(APIView):
                 title=title,
                 artist=artist,
                 file_url=public_url,
-                # owner_id = 1
+                owner = request.user
             )
 
             return Response({
@@ -65,3 +65,27 @@ class SongUploadView(APIView):
         except Exception as e:
             return Response ({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+# Song List View
+class SongListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Only get songs when the user is making the request
+        songs = Song.objects.filter(owner=request.user).order_by('-created_at')
+
+        # Convert the database onject into a list of dictionaries (JSON)
+        song_data = []
+        for song in songs:
+            song_data.append({
+                "id": song.id,
+                "title": song.title,
+                "artist": song.artist,
+                "file_url": song.file_url,
+                "cover_image_url": song.cover_image_url,
+                "created_at": song.created_at
+            })
+
+        return Response(song_data)
+    
