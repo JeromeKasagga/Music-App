@@ -100,12 +100,12 @@ function MusicLibrary() {
                                             <Music className="w-5 h-5 text-white/70" />
                                         </div>
                                         <div>
-                                            <div className="font-medium text-foreground group-hover:text-primary transition-colors">{song.title}</div>
-                                            <div className="text-xs text-gray-500 md:hidden">{song.artist}</div>
+                                            <div className="font-medium text-foreground group-hover:text-primary transition-colors">{song.title || "Unknown title"}</div>
+                                            <div className="text-xs text-gray-500 md:hidden">{song.artist || "Unknown artist"}</div>
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-gray-400">{song.artist}</TableCell>
+                                <TableCell className="text-gray-400">{song.artist || "Unknown artist"}</TableCell>
                                 <TableCell className="text-gray-400 hidden md:table-cell">{song.album}</TableCell>
                                 <TableCell className="text-right text-gray-400 font-mono text-sm">
                                     <div className="flex items-center justify-end gap-4">
