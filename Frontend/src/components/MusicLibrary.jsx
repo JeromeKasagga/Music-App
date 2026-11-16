@@ -20,7 +20,39 @@ function MusicLibrary() {
     const [error, setError] = useState(null);
 
     // fetch the songs when the component loads
-    
+    useEffect(() => {
+        const fetchSongs = async () =>{
+            try {
+                // call the js api
+                const data = await api.getSongs();
+                setSongs(data);
+            } catch (err) {
+                setError("Failed to load songs, are you logged in");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSongs();
+    }, []);
+
+    // Loading screen while fetching
+    if (loading) {
+        return <div className='p-8 text-white'>Loading Your music...</div>
+    }
+
+    // Error if it fails
+    if (error) {
+        return <div className='p-8 text-white'>{error}</div>
+    }
+
+    // Check the songs array
+    if (songs.length === 0) {
+        return (
+            <div className='p-8 text-white ml-0'>
+                <EmptyState title='Your Library' message='Upload songs to get started' />
+            </div>
+        );
+    }
 
 
     if (librarySongs.length === 0) {
@@ -53,7 +85,7 @@ function MusicLibrary() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {librarySongs.map((song, index) => (
+                        {songs.map((song, index) => (
                             <TableRow
                                 key={song.id}
                                 className="group border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
@@ -81,7 +113,12 @@ function MusicLibrary() {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                console.log(`Downloading ${song.title}`);
+                                                const link = document.createElement('a');
+                                                link.href = song.file_url;
+                                                link.download = `${song.title}.mp3`;
+                                                document.body.appendChild(link);
+                                                link.click();
+                                                document.body.removeChild(link)
                                             }}
                                             className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/10 rounded-full transition-all"
                                             title="Download"
