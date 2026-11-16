@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Table,
     TableBody,
@@ -10,18 +10,19 @@ import {
 import { Music, Play, Clock, MoreHorizontal, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmptyState from "./ui/EmptyState";
+import { useEffect, useState } from "react";
 
-// Mock data similar to the structure in "Most Listened" but for the library
-const librarySongs = [
-    { id: "1", title: "Midnight Dreams", artist: "Luna Echo", album: "Starlight", duration: "4:05" },
-    { id: "2", title: "Neon Nights", artist: "Synthwave Collective", album: "Retro Future", duration: "3:18" },
-    { id: "3", title: "Ocean Waves", artist: "Coastal Beats", album: "Tides", duration: "5:12" },
-    { id: "4", title: "Electric Soul", artist: "The Groove Masters", album: "Voltage", duration: "4:27" },
-    { id: "5", title: "Sunset Boulevard", artist: "City Lights", album: "Night Drive", duration: "3:45" },
-    { id: "6", title: "Cosmic Journey", artist: "Space Cadets", album: "Voyager", duration: "6:01" },
-];
-
+import { api } from '../api';
 function MusicLibrary() {
+    // State to hold songs from Django
+    const [songs, setSongs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // fetch the songs when the component loads
+    
+
+
     if (librarySongs.length === 0) {
         return (
             <div className="p-8 text-white ml-0">

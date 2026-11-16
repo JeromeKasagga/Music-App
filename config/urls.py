@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.urls import path
-from songs.views import SongUploadView
+from songs.views import SongUploadView, SongListView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/songs/upload/', SongUploadView.as_view()),
+    path('api/songs/', SongListView.as_view()),
 
 
     # AUTH Endpoints
