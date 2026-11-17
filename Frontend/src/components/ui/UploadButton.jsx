@@ -1,6 +1,7 @@
 // button to upload songs
 import React from 'react';
 import { Upload } from "lucide-react";
+import { api } from '../lib/api';
 
 function UploadButton() {
   const fileInputRef = React.useRef(null);
@@ -9,11 +10,22 @@ function UploadButton() {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files?.[0];
-    if (file) {
-      console.log("Uploading file:", file.name);
-      // Here you would typically call an upload function
+    if (!file) return;
+
+    const title = prompt("Enter song title:", file.name.replace('.mp3', ''));
+    const artist = prompt("Enter artist name:", "Unknown artist");
+
+    if (!title || !artist) return;
+    try {
+      console.log("Uploading");
+      await api.UploadSong(file, title, artist);
+      alert("Upload successful, refresh the page to see it.");
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+      alert("Upload failed, check console.");
     }
   };
 

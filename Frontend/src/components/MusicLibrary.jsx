@@ -10,9 +10,9 @@ import {
 import { Music, Play, Clock, MoreHorizontal, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmptyState from "./ui/EmptyState";
-import { useEffect, useState } from "react";
 
-import { api } from '../api';
+
+import { api } from '../lib/api';
 function MusicLibrary() {
     // State to hold songs from Django
     const [songs, setSongs] = useState([]);
@@ -55,7 +55,7 @@ function MusicLibrary() {
     }
 
 
-    if (librarySongs.length === 0) {
+    if (songs.length === 0) {
         return (
             <div className="p-8 text-white ml-0">
                 <EmptyState title="Your Library" message="Upload songs to get started" />
