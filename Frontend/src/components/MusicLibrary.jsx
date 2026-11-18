@@ -115,7 +115,7 @@ function MusicLibrary() {
               {songs.map((song, index) => (
                 <TableRow
                   key={song.id}
-                  onClick={() =>playSong(song)}
+                  onClick={() =>playSong(song, songs)}
                   className="group border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   <TableCell className="font-medium text-gray-400 group-hover:text-white">
