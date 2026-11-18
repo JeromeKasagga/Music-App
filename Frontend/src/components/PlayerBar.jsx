@@ -11,7 +11,7 @@ import {
     MoreHorizontal,
     Heart
 } from 'lucide-react';
-import { PlayerContext } from '../context/PlayerContext';
+import { PlayerContext } from './PlayerContext';
 
 function PlayerBar() {
     // 1. Get the real state from our Context
