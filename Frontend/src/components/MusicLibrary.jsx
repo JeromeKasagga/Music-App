@@ -11,6 +11,8 @@ import { Music, Play, Clock, MoreHorizontal, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmptyState from "./ui/EmptyState";
 import UploadButton from "./ui/UploadButton";
+import { useContext } from "react";
+import { PlayerContext } from "./PlayerContext";
 
 import { api } from "../lib/api";
 function MusicLibrary() {
@@ -18,6 +20,7 @@ function MusicLibrary() {
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { playSong, currentSong, isPlaying } = useContext(PlayerContext);
 
   // fetch the songs when the component loads
   useEffect(() => {
@@ -48,6 +51,8 @@ function MusicLibrary() {
       setLoading(false);
     }
   };
+
+
 
 
   useEffect(() => {
@@ -110,6 +115,7 @@ function MusicLibrary() {
               {songs.map((song, index) => (
                 <TableRow
                   key={song.id}
+                  onClick={() =>playSong(song)}
                   className="group border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   <TableCell className="font-medium text-gray-400 group-hover:text-white">

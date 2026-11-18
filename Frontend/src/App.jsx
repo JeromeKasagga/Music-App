@@ -1,10 +1,12 @@
 import AppLayout from "./AppLayout";
-
+import { PlayerProvider } from "./components/PlayerContext";
 
 function App() {
   return (
-    <AppLayout />
-  )
+    <PlayerProvider>
+      <AppLayout />
+    </PlayerProvider>
+  );
 }
 
 export default App;
