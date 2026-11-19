@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '@/Context/AuthContext';
 import { Music, Loader2 } from 'lucide-react';
 
 export default function Login() {

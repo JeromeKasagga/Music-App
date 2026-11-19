@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import EmptyState from "./ui/EmptyState";
 import UploadButton from "./ui/UploadButton";
 import { useContext } from "react";
-import { PlayerContext } from "./PlayerContext";
+import { PlayerContext } from "../Context/PlayerContext";
 
 import { api } from "../lib/api";
 function MusicLibrary() {
