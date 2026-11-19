@@ -2,7 +2,9 @@ import React, { useContext } from "react";
 import { AuthProvider, AuthContext } from "./Context/AuthContext";
 import { PlayerProvider } from "./Context/PlayerContext";
 import Login from "./components/Login";
-import AppLayout from "./AppLayout"; // main layout with sidebar and player
+import AppLayout from "./AppLayout"; 
+import LandingPage from "./components/LandingPage";
+
 
 // create a "Protected Route" wrapper
 function AppContent() {
@@ -18,7 +20,7 @@ function AppContent() {
 
   // If not logged in, show the Login screen
   if (!isAuthenticated) {
-    return <Login />;
+    return <LandingPage />;
   }
 
   // If logged in, show the app

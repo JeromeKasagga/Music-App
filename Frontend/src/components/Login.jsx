@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '@/Context/AuthContext';
 import { Music, Loader2 } from 'lucide-react';
 
-export default function Login() {
+export default function Login({ onBack }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
