@@ -25,6 +25,10 @@ function PlayerBar() {
     prevSong,
     toggleShuffle,
     isShuffle,
+    seekTo,
+    changeVolume,
+    volume,
+    // currentTime,
   } = useContext(PlayerContext);
   // 2. If no song is selected, don't show the player bar
   if (!currentSong) return null;
@@ -102,49 +106,50 @@ function PlayerBar() {
           >
             <SkipBack size={20} fill="currentColor" />
           </button>
-
-          {/* REAL PLAY BUTTON */}
-          <button
-            onClick={togglePlay}
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform mx-2"
-          >
-            {isPlaying ? (
-              <Pause size={18} className="text-black fill-current" />
-            ) : (
-              <Play size={18} className="text-black fill-current ml-1" />
-            )}
-          </button>
-
-          {/* skip forward */}
-          <button
-            onClick={nextSong}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            <SkipForward size={20} fill="currentColor" />
-          </button>
-
-          <button className="text-gray-400 hover:text-white transition-colors">
-            <Repeat size={16} />
-          </button>
         </div>
 
-        <div className="flex items-center gap-2 w-full pt-2">
-          {/* REAL TIME TRACKER */}
-          <span className="hidden md:inline-flex text-xs text-gray-500 font-mono">
-            {formatTime(currentTime)}
-          </span>
-          <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden cursor-pointer group">
-            <div
-              className="h-full bg-foreground group-hover:bg-primary transition-colors relative"
-              style={{ width: `${progress}%` }}
-            >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </div>
-          <span className="hidden md:inline-flex text-xs text-gray-500 font-mono">
-            {formatTime(duration)}
-          </span>
-        </div>
+        {/* REAL PLAY BUTTON */}
+        <button
+          onClick={togglePlay}
+          className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform mx-2"
+        >
+          {isPlaying ? (
+            <Pause size={18} className="text-black fill-current" />
+          ) : (
+            <Play size={18} className="text-black fill-current ml-1" />
+          )}
+        </button>
+
+        {/* skip forward */}
+        <button
+          onClick={nextSong}
+          className="text-gray-400 hover:text-white transition-colors"
+        >
+          <SkipForward size={20} fill="currentColor" />
+        </button>
+
+        <button className="text-gray-400 hover:text-white transition-colors">
+          <Repeat size={16} />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2 w-full pt-2">
+        <span className="hidden md:inline-flex text-xs text-gray-500 font-mono w-10 text-right">
+          {formatTime(currentTime)}
+        </span>
+
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={progress || 0}
+          onChange={(e) => seekTo(e.target.value)}
+          className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-white transition-all"
+        />
+
+        <span className="hidden md:inline-flex text-xs text-gray-500 font-mono w-10">
+          {formatTime(duration)}
+        </span>
       </div>
 
       {/* Desktop: Volume & Options Right */}
@@ -152,12 +157,19 @@ function PlayerBar() {
         <button className="text-gray-400 hover:text-white transition-colors">
           <Download size={16} />
         </button>
+
         <div className="flex items-center gap-2 w-24 group">
           <Volume2 size={16} className="text-gray-400" />
-          <div className="flex-1 h-1 bg-white/10 rounded-full cursor-pointer overflow-hidden">
-            <div className="h-full bg-foreground w-[80%] group-hover:bg-primary transition-colors" />
-          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={volume * 100}
+            onChange={(e) => changeVolume(e.target.value)}
+            className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-white transition-all"
+          />
         </div>
+        
         <button className="text-gray-400 hover:text-white transition-colors">
           <MoreHorizontal size={16} />
         </button>

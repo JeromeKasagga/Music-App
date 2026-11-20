@@ -6,7 +6,7 @@ import AppLayout from "./AppLayout";
 import LandingPage from "./components/LandingPage";
 
 
-// create a "Protected Route" wrapper
+// "Protected Route" wrapper
 function AppContent() {
   const { isAuthenticated, loading } = useContext(AuthContext);
 
