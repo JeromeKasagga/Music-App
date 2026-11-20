@@ -15,21 +15,16 @@ function UploadButton({ onUploadSuccess }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const title = prompt("Enter song title:", file.name.replace(".mp3", ""));
-    const artist = prompt("Enter artist name:", "Unknown artist");
-
-    if (!title || !artist) return;
     try {
-      await api.uploadSong(file, title, artist);
-      alert("Upload Successful!")
+      console.log("Uploading...");
+      await api.uploadSong(file);
+      alert("Upload successful!");
       onUploadSuccess();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert("Upload failed, check console.");
     }
   };
-
-
 
   return (
     <>

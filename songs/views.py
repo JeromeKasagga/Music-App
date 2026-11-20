@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Song
 import os
 import time
-
+from mutagen.easyid3 import EasyID3
+from mutagen.mp3 import MP3
 
 # Song Upload View
 class SongUploadView(APIView):
@@ -16,47 +17,78 @@ class SongUploadView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Get file and data from react request
         file = request.FILES.get('file')
-        title = request.data.get('title', 'Unknown Title')
-        artist = request.data.get('artist', 'Unknown Artist')
-
         if not file:
             return Response({"error": "No audio file provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # connect to supabase
+        # --- NEW: Extract Metadata automatically ---
+        title = "Unknown Title"
+        artist = "Unknown Artist"
+        duration_seconds = 0
+
+        try:
+            # mutagen needs to read the file, temporarily move the pointer to the start
+            file.seek(0)
+            audio = EasyID3(file)
+            if 'title' in audio:
+                title = audio['title'][0]
+            if 'artist' in audio:
+                artist = audio['artist'][0]
+            
+            # Get duration
+            file.seek(0)
+            mp3 = MP3(file)
+            duration_seconds = int(mp3.info.length)
+            
+            # Convert seconds to "3:45" format
+            minutes = duration_seconds // 60
+            seconds = duration_seconds % 60
+            duration_string = f"{minutes}:{seconds:02d}"
+
+        except Exception as e:
+            print(f"Could not read metadata: {e}")
+            # Fallback: Use the filename as the title
+            title = file.name.replace('.mp3', '').replace('.wav', '')
+            duration_string = "0:00"
+
+        # Reset file pointer for the actual upload
+        file.seek(0)
+        # --- END METADATA EXTRACTION ---
+
+        # 2. Connect to Supabase
         url = os.getenv("SUPABASE_URL")
         key = os.getenv("SUPABASE_SERVICE_KEY")
         supabase: Client = create_client(url, key)
 
-        # unique filename so that songs dont overwrite themselves
+        # 3. Create a unique filename
         file_extension = file.name.split('.')[-1]
-        unique_filename = f"songs/{int(time.time())}_{title.replace(' ','_')}.{file_extension}"
-
-
+        unique_filename = f"songs/{int(time.time())}_{title.replace(' ', '_')}.{file_extension}"
+        
         file_content = file.read()
+
         try:
-            # Upload to supabse storage
+            # 4. Upload to Supabase Storage
             supabase.storage.from_("music-files").upload(
                 file=file_content,
                 path=unique_filename,
                 file_options={"content-type": file.content_type}
             )
 
-            # Get the public url
+            # 5. Get the public URL
             public_url = supabase.storage.from_("music-files").get_public_url(unique_filename)
 
-            # save to db
+            # 6. Save to database
             song = Song.objects.create(
                 title=title,
                 artist=artist,
                 file_url=public_url,
-                owner = request.user
+                duration=duration_string, 
+                owner=request.user
             )
 
             return Response({
-                "message": "Upload successfull!",
-                "song":{
+                "message": "Upload successful!",
+                "song": {
                     "id": song.id,
                     "title": song.title,
                     "artist": song.artist,
@@ -65,7 +97,7 @@ class SongUploadView(APIView):
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response ({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
