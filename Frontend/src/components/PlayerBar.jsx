@@ -7,14 +7,12 @@ import {
   Shuffle,
   Repeat,
   Volume2,
-  Download,
   MoreHorizontal,
   Heart,
 } from "lucide-react";
-import { PlayerContext } from "../Context/PlayerContext";
+import { PlayerContext } from "../context/PlayerContext";
 
 function PlayerBar() {
-  // 1. Get the real state from our Context
   const {
     currentSong,
     isPlaying,
@@ -25,15 +23,14 @@ function PlayerBar() {
     prevSong,
     toggleShuffle,
     isShuffle,
+    currentTime,
     seekTo,
     changeVolume,
     volume,
-    // currentTime,
   } = useContext(PlayerContext);
-  // 2. If no song is selected, don't show the player bar
+
   if (!currentSong) return null;
 
-  // 3. Helper to format seconds into "3:45"
   const formatTime = (time) => {
     if (!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
@@ -43,34 +40,11 @@ function PlayerBar() {
     return `${minutes}:${seconds}`;
   };
 
-  // 4. Calculate current time based on progress percentage
-  const currentTime = duration ? (progress / 100) * duration : 0;
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 flex flex-col gap-3 z-50 md:flex-row md:items-center">
-      {/* Mobile: Song Info at Top */}
-      <div className="md:hidden flex items-center justify-between w-full">
-        <div className="flex flex-col min-w-0 flex-1">
-          <h4 className="text-white font-bold text-sm truncate">
-            {currentSong.title}
-          </h4>
-          <p className="text-gray-400 text-xs hover:text-white cursor-pointer transition-colors truncate">
-            {currentSong.artist}
-          </p>
-        </div>
-        <div className="flex items-center gap-1">
-          <button className="p-1.5 text-gray-400 hover:text-primary transition-colors">
-            <Download size={16} />
-          </button>
-          <button className="p-1.5 text-gray-400 hover:text-primary transition-colors">
-            <MoreHorizontal size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* Desktop: Song Info Left */}
-      <div className="hidden md:flex items-center gap-3 min-w-[140px] flex-shrink-0">
-        <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-white/10 px-4 py-3 flex flex-col gap-3 z-50 md:flex-row md:items-center md:justify-between">
+      {/* DESKTOP: Song Info Left */}
+      <div className="hidden md:flex items-center gap-3 w-[30%] min-w-[180px]">
+        <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center shadow-lg flex-shrink-0">
           <div
             className={`w-4 h-4 rounded-full bg-white/20 ${isPlaying ? "animate-pulse" : ""}`}
           />
@@ -79,86 +53,79 @@ function PlayerBar() {
           <h4 className="text-white font-medium text-sm truncate">
             {currentSong.title}
           </h4>
-          <p className="text-gray-400 text-[11px] hover:text-white cursor-pointer transition-colors truncate">
+          <p className="text-gray-400 text-[11px] truncate">
             {currentSong.artist}
           </p>
         </div>
-        <button className="text-muted-foreground hover:text-primary transition-colors ml-2">
+        <button className="text-gray-400 hover:text-primary transition-colors ml-2 flex-shrink-0">
           <Heart size={16} />
         </button>
       </div>
 
-      {/* Player Controls */}
-      <div className="flex flex-col items-center gap-4 flex-1 min-w-0 w-full">
-        <div className="flex items-center justify-between w-full max-w-[500px] px-1 gap-2">
-          {/* Shuffle button */}
+      {/* CENTER: Controls & Progress */}
+      <div className="flex flex-col items-center gap-2 flex-1 max-w-[600px] w-full">
+        {/* Control Buttons */}
+        <div className="flex items-center justify-center gap-6">
           <button
             onClick={toggleShuffle}
             className={`transition-colors ${isShuffle ? "text-primary" : "text-gray-400 hover:text-white"}`}
           >
             <Shuffle size={16} />
           </button>
-
-          {/* Skip back button */}
           <button
             onClick={prevSong}
             className="text-gray-400 hover:text-white transition-colors"
           >
             <SkipBack size={20} fill="currentColor" />
           </button>
+          <button
+            onClick={togglePlay}
+            className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform"
+          >
+            {isPlaying ? (
+              <Pause size={18} className="text-black fill-current" />
+            ) : (
+              <Play size={18} className="text-black fill-current ml-1" />
+            )}
+          </button>
+          <button
+            onClick={nextSong}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <SkipForward size={20} fill="currentColor" />
+          </button>
+          <button className="text-gray-400 hover:text-white transition-colors">
+            <Repeat size={16} />
+          </button>
         </div>
 
-        {/* REAL PLAY BUTTON */}
-        <button
-          onClick={togglePlay}
-          className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform mx-2"
-        >
-          {isPlaying ? (
-            <Pause size={18} className="text-black fill-current" />
-          ) : (
-            <Play size={18} className="text-black fill-current ml-1" />
-          )}
-        </button>
-
-        {/* skip forward */}
-        <button
-          onClick={nextSong}
-          className="text-gray-400 hover:text-white transition-colors"
-        >
-          <SkipForward size={20} fill="currentColor" />
-        </button>
-
-        <button className="text-gray-400 hover:text-white transition-colors">
-          <Repeat size={16} />
-        </button>
+        {/* Progress Bar */}
+        <div className="flex items-center gap-3 w-full px-2">
+          <span className="text-xs text-gray-400 font-mono w-10 text-right">
+            {formatTime(currentTime)}
+          </span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={progress || 0}
+            onChange={(e) => seekTo(e.target.value)}
+            className="flex-1 h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-white"
+          />
+          <span className="text-xs text-gray-400 font-mono w-10">
+            {formatTime(duration)}
+          </span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 w-full pt-2">
-        <span className="hidden md:inline-flex text-xs text-gray-500 font-mono w-10 text-right">
-          {formatTime(currentTime)}
-        </span>
+      {/* DESKTOP: Volume & Options Right */}
+      <div className="hidden md:flex items-center justify-end gap-3 w-[30%] min-w-[180px]">
+        {/* Note: I removed the desktop download button here too, 
+                    since you said remove from mobile/tabs. 
+                    If you want it back on desktop, uncomment the next line. */}
+        {/* <button className="text-gray-400 hover:text-white transition-colors"><Download size={16} /></button> */}
 
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={progress || 0}
-          onChange={(e) => seekTo(e.target.value)}
-          className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-white transition-all"
-        />
-
-        <span className="hidden md:inline-flex text-xs text-gray-500 font-mono w-10">
-          {formatTime(duration)}
-        </span>
-      </div>
-
-      {/* Desktop: Volume & Options Right */}
-      <div className="hidden md:flex items-center justify-end gap-3 min-w-[120px] flex-shrink-0">
-        <button className="text-gray-400 hover:text-white transition-colors">
-          <Download size={16} />
-        </button>
-
-        <div className="flex items-center gap-2 w-24 group">
+        <div className="flex items-center gap-2 w-24">
           <Volume2 size={16} className="text-gray-400" />
           <input
             type="range"
@@ -166,13 +133,36 @@ function PlayerBar() {
             max="100"
             value={volume * 100}
             onChange={(e) => changeVolume(e.target.value)}
-            className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-white transition-all"
+            className="flex-1 h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary hover:accent-white"
           />
         </div>
-        
         <button className="text-gray-400 hover:text-white transition-colors">
           <MoreHorizontal size={16} />
         </button>
+      </div>
+
+      {/* MOBILE: Song Info & Volume (Stacked) */}
+      <div className="flex md:hidden items-center justify-between w-full">
+        <div className="flex flex-col min-w-0 flex-1">
+          <h4 className="text-white font-bold text-sm truncate">
+            {currentSong.title}
+          </h4>
+          <p className="text-gray-400 text-xs truncate">{currentSong.artist}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 w-20">
+            <Volume2 size={14} className="text-gray-400" />
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={volume * 100}
+              onChange={(e) => changeVolume(e.target.value)}
+              className="flex-1 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+            />
+          </div>
+          {/* The download button is completely removed from mobile now */}
+        </div>
       </div>
     </div>
   );
