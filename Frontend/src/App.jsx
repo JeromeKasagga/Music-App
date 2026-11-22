@@ -2,9 +2,9 @@ import React, { useContext } from "react";
 import { AuthProvider, AuthContext } from "./Context/AuthContext";
 import { PlayerProvider } from "./Context/PlayerContext";
 import Login from "./components/Login";
-import AppLayout from "./AppLayout"; 
+import AppLayout from "./AppLayout";
 import LandingPage from "./components/LandingPage";
-
+import { SearchProvider } from "./Context/SearchContext";
 
 // "Protected Route" wrapper
 function AppContent() {
@@ -26,7 +26,9 @@ function AppContent() {
   // If logged in, show the app
   return (
     <PlayerProvider>
-      <AppLayout />
+      <SearchProvider>
+        <AppLayout />
+      </SearchProvider>
     </PlayerProvider>
   );
 }

@@ -2,8 +2,13 @@
 import { Search, User, Bell } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SidebarTrigger } from "./sidebar";
+import { SearchContext } from "@/Context/SearchContext";
+import { useContext } from "react";
 
 export function TopBar() {
+    const {searchQuery, setSearchQuery} = useContext(SearchContext)
+
+
     return (
         <div className="w-full h-16 m-0 bg-background/80 border-b border-border flex items-center justify-between px-4">
             <div className="flex items-center gap-3 w-full md:w-auto">
@@ -14,6 +19,8 @@ export function TopBar() {
                     <Search className="w-4 h-4 text-muted-foreground" />
                     <input
                         type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search your library..."
                         className="w-full bg-transparent text-sm text-foreground placeholder:text-muted focus:outline-none"
                     />

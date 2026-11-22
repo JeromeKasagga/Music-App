@@ -13,6 +13,8 @@ import EmptyState from "./ui/EmptyState";
 import UploadButton from "./ui/UploadButton";
 import { useContext } from "react";
 import { PlayerContext } from "../Context/PlayerContext";
+import { SearchContext } from "@/Context/SearchContext";
+import { useContext } from "react";
 
 import { api } from "../lib/api";
 function MusicLibrary() {
@@ -21,6 +23,7 @@ function MusicLibrary() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { playSong, currentSong, isPlaying } = useContext(PlayerContext);
+  const { searchQuery } = useContext(SearchContext);
 
   // fetch the songs when the component loads
   useEffect(() => {
@@ -79,6 +82,12 @@ function MusicLibrary() {
     );
   }
 
+  // filter songs
+  const filteredSongs = songs.filter(song => 
+    song.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    song.artist.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
   return (
     <div className="p-8 pt-0 text-white ml-0">
       <div className="flex justify-between items-center mb-6 max-w-[1040px]">
@@ -112,7 +121,7 @@ function MusicLibrary() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {songs.map((song, index) => (
+              {filteredSongs.map((song, index) => (
                 <TableRow
                   key={song.id}
                   onClick={() =>playSong(song, songs)}
