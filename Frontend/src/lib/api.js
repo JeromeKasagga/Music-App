@@ -79,19 +79,18 @@ export const api = {
   },
 
   // Upload Songs
-  uploadSong: async (file, title, artist) => {
+    uploadSong: async (file, title, artist, duration = "0:00") => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title);
     formData.append('artist', artist);
+    formData.append('duration', duration);
 
-    // Use fetchWithAuth instead of fetch
     const res = await fetchWithAuth(`${API_URL}/api/songs/upload/`, {
       method: 'POST',
       body: formData
-    //  Browser automaticaly sets content type to formdata
     });
     if (!res.ok) throw new Error('Upload failed');
     return res.json();
-  },
+  }
 };
