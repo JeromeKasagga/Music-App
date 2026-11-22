@@ -6,6 +6,7 @@ import AppLayout from "./AppLayout";
 import LandingPage from "./components/LandingPage";
 import { SearchProvider } from "./Context/SearchContext";
 
+
 // "Protected Route" wrapper
 function AppContent() {
   const { isAuthenticated, loading } = useContext(AuthContext);
