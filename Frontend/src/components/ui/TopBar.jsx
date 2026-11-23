@@ -59,9 +59,8 @@ export function TopBar() {
       await api.downloadYouTube(video.url);
       alert("Download complete! Refreshing library...");
 
-      // We need a way to tell the library to refresh.
-      // For now, let's just force a page reload to test it.
-      window.location.reload();
+      //a way to tell the library to refresh.
+      window.dispatchEvent(new Event('library-updated'));
     } catch (error) {
       console.error(error);
       alert("Failed to download from YouTube.");

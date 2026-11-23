@@ -7,7 +7,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Music, Play, Clock, MoreHorizontal, Download } from "lucide-react";
+import {
+  Music,
+  Play,
+  Clock,
+  MoreHorizontal,
+  Download,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EmptyState from "./ui/EmptyState";
 import UploadButton from "./ui/UploadButton";
@@ -55,6 +62,12 @@ function MusicLibrary() {
 
   useEffect(() => {
     fetchSongs();
+
+    // Listen for the custom event to refresh the list
+    const handleUpdate = () => fetchSongs();
+    window.addEventListener("library-updated", handleUpdate);
+
+    return () => window.removeEventListener("library-updated", handleUpdate);
   }, []);
 
   // Loading screen while fetching
@@ -209,6 +222,25 @@ function MusicLibrary() {
                         title="Download"
                       >
                         <Download className="w-4 h-4 text-gray-400 hover:text-white" />
+                      </button>
+                      
+                      {/* delete button */}
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation(); // Stop the row from playing the song
+                          if (window.confirm("Delete this song?")) {
+                            try {
+                              await api.deleteSong(song.id);
+                              fetchSongs(); // Refresh the library
+                            } catch (err) {
+                              alert("Failed to delete");
+                            }
+                          }
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-500/20 rounded-full transition-all text-gray-400 hover:text-red-500"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </TableCell>

@@ -115,4 +115,13 @@ export const api = {
     if (!res.ok) throw new Error("Search failed");
     return res.json();
   },
+
+  // delte button api
+    deleteSong: async (songId) => {
+    const res = await fetchWithAuth(`${API_URL}/api/songs/${songId}/`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete song');
+    return true;
+  },
 };
