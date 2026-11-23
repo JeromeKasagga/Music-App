@@ -75,7 +75,7 @@ export function TopBar() {
         className="flex items-center gap-3 w-full md:w-auto relative"
         ref={dropdownRef}
       >
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <SidebarTrigger />
         </div>
 
