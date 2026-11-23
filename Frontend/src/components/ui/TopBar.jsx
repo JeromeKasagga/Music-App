@@ -3,10 +3,12 @@ import { ThemeToggle } from "./ThemeToggle";
 import { SidebarTrigger } from "./sidebar";
 import { SearchContext } from "@/Context/SearchContext";
 import { useContext, useState, useEffect, useRef } from "react";
+import { AuthContext } from "@/Context/AuthContext";
 import { api } from "@/lib/api";
 
 export function TopBar() {
   const { searchQuery, setSearchQuery } = useContext(SearchContext);
+  const { logout } = useContext(AuthContext);
 
   // YouTube Search State
   const [ytResults, setYtResults] = useState([]);
@@ -60,7 +62,7 @@ export function TopBar() {
       alert("Download complete! Refreshing library...");
 
       //a way to tell the library to refresh.
-      window.dispatchEvent(new Event('library-updated'));
+      window.dispatchEvent(new Event("library-updated"));
     } catch (error) {
       console.error(error);
       alert("Failed to download from YouTube.");
@@ -126,8 +128,14 @@ export function TopBar() {
         <button>
           <Bell className="w-6 h-6 bg-primary text-primary-foreground p-1 rounded-3xl" />
         </button>
-        <button>
-          <User className="bg-accent text-accent-foreground w-8 h-8 p-1 rounded-3xl" />
+        {/* logout button */}
+        <button
+          onClick={() => {
+            if (window.confirm("Log out?")) logout();
+          }}
+          title="Logout"
+        >
+          <User className="bg-accent text-accent-foreground w-8 h-8 p-1 rounded-3xl hover:bg-red-500 hover:text-white transition-colors" />
         </button>
       </div>
     </div>
