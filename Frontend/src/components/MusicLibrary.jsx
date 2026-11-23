@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import EmptyState from "./ui/EmptyState";
 import UploadButton from "./ui/UploadButton";
-import { useContext } from "react";
 import { PlayerContext } from "../Context/PlayerContext";
 import { SearchContext } from "@/Context/SearchContext";
 
@@ -29,6 +28,7 @@ function MusicLibrary() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { playSong, currentSong, isPlaying } = useContext(PlayerContext);
+  const fileInputRef = useRef(null);
   const { searchQuery } = useContext(SearchContext);
 
   // fetch the songs when the component loads
@@ -69,6 +69,23 @@ function MusicLibrary() {
 
     return () => window.removeEventListener("library-updated", handleUpdate);
   }, []);
+
+  useEffect(() => {
+        const handlePlayAll = () => {
+            if (songs.length > 0) playSong(songs[0], songs);
+        };
+        const handleUpload = () => {
+            if (fileInputRef.current) fileInputRef.current.click();
+        };
+
+        window.addEventListener('trigger-play-all', handlePlayAll);
+        window.addEventListener('trigger-upload', handleUpload);
+        
+        return () => {
+            window.removeEventListener('trigger-play-all', handlePlayAll);
+            window.removeEventListener('trigger-upload', handleUpload);
+        };
+    }, [songs, playSong]);
 
   // Loading screen while fetching
   if (loading) {

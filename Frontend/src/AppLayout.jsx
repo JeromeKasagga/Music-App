@@ -1,5 +1,6 @@
 // Sidebar & Main App layout
 // components
+import { useState, useRef, useEffect } from "react";
 import { TopBar } from "./components/ui/TopBar";
 import { Hero } from "./components/ui/Hero";
 import MostListened from "./components/ui/MostListened";
@@ -34,6 +35,23 @@ import {
 } from "lucide-react";
 
 function AppLayout() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const mainRef = useRef(null);
+
+  useEffect(() => {
+    const mainElement = mainRef.current;
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const scrollTop = mainElement.scrollTop;
+      // Just check if we scrolled past 30px
+      setIsCollapsed(scrollTop > 30);
+    };
+
+    mainElement.addEventListener("scroll", handleScroll, { passive: true });
+    return () => mainElement.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <SidebarProvider>
       {/* The Sidebar */}
@@ -136,20 +154,28 @@ function AppLayout() {
           <TopBar />
         </header>
 
-        {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto relative pb-[100px]">
-          {/* Sticky Hero */}
-          <div className="sticky top-0 z-20 bg-background pb-4">
-            <Hero />
+        <main
+          ref={mainRef}
+          className="flex-1 overflow-y-auto relative pb-[100px] px-4"
+        >
+          {/* 
+    DYNAMIC WRAPPER:
+    When collapsed, it takes 18vh. When expanded, it takes 35vh.
+    This perfectly matches the Hero, killing the black gap.
+  */}
+          <div
+            className={`sticky top-0 z-20 w-full bg-background transition-all duration-500 ease-in-out
+      ${isCollapsed ? "h-[18vh]" : "h-[35vh]"}
+    `}
+          >
+            <Hero isCollapsed={isCollapsed} />
           </div>
 
-          {/* Scrollable Content Layers */}
-          <div className="relative z-10 bg-background min-h-screen">
+          <div className="relative z-10 pt-4">
             <MostListened />
             <MusicLibrary />
           </div>
         </main>
-
         <PlayerBar />
       </SidebarInset>
     </SidebarProvider>
