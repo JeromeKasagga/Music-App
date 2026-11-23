@@ -74,43 +74,45 @@ export const api = {
   // fetch songs
   getSongs: async () => {
     const res = await fetchWithAuth(`${API_URL}/api/songs/`);
-    if (!res.ok) throw new Error('Failed to fetch songs');
+    if (!res.ok) throw new Error("Failed to fetch songs");
     return res.json();
   },
 
   // Upload Songs
-    uploadSong: async (file, title, artist, duration = "0:00") => {
+  uploadSong: async (file, title, artist, duration = "0:00") => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', title);
-    formData.append('artist', artist);
-    formData.append('duration', duration);
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("artist", artist);
+    formData.append("duration", duration);
 
     const res = await fetchWithAuth(`${API_URL}/api/songs/upload/`, {
-      method: 'POST',
-      body: formData
+      method: "POST",
+      body: formData,
     });
-    if (!res.ok) throw new Error('Upload failed');
+    if (!res.ok) throw new Error("Upload failed");
     return res.json();
   },
-  
+
   // handle youtube request
-    downloadYouTube: async (youtubeUrl) => {
+  downloadYouTube: async (youtubeUrl) => {
     const res = await fetchWithAuth(`${API_URL}/api/songs/youtube/`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url: youtubeUrl })
+      body: JSON.stringify({ url: youtubeUrl }),
     });
-    if (!res.ok) throw new Error('YouTube download failed');
+    if (!res.ok) throw new Error("YouTube download failed");
     return res.json();
   },
 
   // youtube search function
-  searchYoutube: async (query) => {
-    const res = await fetchWithAuth(`${API_URL}/api/youtube/search/?q=${encodeURIComponent(query)}`);
-    if (!res.ok) throw new Error('Search failed');
+  searchYouTube: async (query) => {
+    const res = await fetchWithAuth(
+      `${API_URL}/api/youtube/search/?q=${encodeURIComponent(query)}`,
+    );
+    if (!res.ok) throw new Error("Search failed");
     return res.json();
-  }
+  },
 };
