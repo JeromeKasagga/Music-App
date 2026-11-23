@@ -105,37 +105,12 @@ function MusicLibrary() {
       song.artist.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // function to handle Youtube downloads
-  const handleYouTubeDownload = async () => {
-    const url = prompt("Enter YouTube URL:");
-    if (!url) return;
-
-    try {
-      await api.downloadYouTube(url);
-      alert("YouTube song downloaded and added to your library!");
-      fetchSongs(); // Refresh the list
-    } catch (error) {
-      console.error(error);
-      alert("Failed to download. Check the console.");
-    }
-  };
-
-    return (
+  return (
     <div className="p-4 md:p-8 pt-0 text-white ml-0">
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 max-w-[1040px]">
         <h2 className="text-xl font-bold">Your Library</h2>
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <button
-            onClick={handleYouTubeDownload}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 font-medium rounded-full transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
-              <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon>
-            </svg>
-            <span>YouTube</span>
-          </button>
           <div className="w-full sm:w-auto">
             <UploadButton onUploadSuccess={fetchSongs} />
           </div>
@@ -144,7 +119,10 @@ function MusicLibrary() {
 
       {songs.length === 0 ? (
         <div className="max-w-[1040px]">
-          <EmptyState title="Your Library" message="Upload songs to get started" />
+          <EmptyState
+            title="Your Library"
+            message="Upload songs to get started"
+          />
         </div>
       ) : (
         <>
@@ -159,7 +137,9 @@ function MusicLibrary() {
                   <TableHead className="text-gray-400">TITLE</TableHead>
                   <TableHead className="text-gray-400">ARTIST</TableHead>
                   <TableHead className="text-gray-400">ALBUM</TableHead>
-                  <TableHead className="text-right text-gray-400 w-[100px]">DURATION</TableHead>
+                  <TableHead className="text-right text-gray-400 w-[100px]">
+                    DURATION
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -172,10 +152,18 @@ function MusicLibrary() {
                     }`}
                   >
                     <TableCell className="font-medium text-gray-400 group-hover:text-white w-[50px]">
-                      <span className={currentSong?.id === song.id ? "hidden" : "group-hover:hidden"}>
+                      <span
+                        className={
+                          currentSong?.id === song.id
+                            ? "hidden"
+                            : "group-hover:hidden"
+                        }
+                      >
                         {index + 1}
                       </span>
-                      <div className={`${currentSong?.id === song.id ? "block" : "hidden group-hover:block"} text-primary`}>
+                      <div
+                        className={`${currentSong?.id === song.id ? "block" : "hidden group-hover:block"} text-primary`}
+                      >
                         {currentSong?.id === song.id && isPlaying ? (
                           <Pause className="w-4 h-4 fill-current" />
                         ) : (
@@ -184,14 +172,18 @@ function MusicLibrary() {
                       </div>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="max-w-[300px] lg:max-w-[400px]">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
                           <Music className="w-5 h-5 text-white/70" />
                         </div>
-                        <div className={`font-medium truncate ${
-                          currentSong?.id === song.id ? "text-primary" : "text-foreground group-hover:text-primary"
-                        }`}>
+                        <div
+                          className={`font-medium truncate ${
+                            currentSong?.id === song.id
+                              ? "text-primary"
+                              : "text-foreground group-hover:text-primary"
+                          }`}
+                        >
                           {song.title || "Unknown title"}
                         </div>
                       </div>
@@ -208,7 +200,7 @@ function MusicLibrary() {
                     <TableCell className="text-right text-gray-400 font-mono text-sm w-[100px]">
                       <div className="flex items-center justify-end gap-2">
                         <span>{song.duration || "0:00"}</span>
-                        
+
                         {/* 3-Dot Menu */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -216,8 +208,13 @@ function MusicLibrary() {
                               <MoreHorizontal className="w-4 h-4" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-40 bg-card border-white/10">
-                            <DropdownMenuItem className="cursor-pointer gap-2" onClick={(e) => {
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-40 bg-card border-white/10"
+                          >
+                            <DropdownMenuItem
+                              className="cursor-pointer gap-2"
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 const link = document.createElement("a");
                                 link.href = song.file_url;
@@ -225,16 +222,20 @@ function MusicLibrary() {
                                 document.body.appendChild(link);
                                 link.click();
                                 document.body.removeChild(link);
-                            }}>
+                              }}
+                            >
                               <Download className="w-4 h-4" /> Download
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer gap-2 text-red-500 focus:text-red-500" onClick={async (e) => {
+                            <DropdownMenuItem
+                              className="cursor-pointer gap-2 text-red-500 focus:text-red-500"
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (window.confirm("Delete this song?")) {
                                   await api.deleteSong(song.id);
                                   fetchSongs();
                                 }
-                            }}>
+                              }}
+                            >
                               <Trash2 className="w-4 h-4" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -256,7 +257,9 @@ function MusicLibrary() {
                 key={song.id}
                 onClick={() => playSong(song, filteredSongs)}
                 className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
-                  currentSong?.id === song.id ? "bg-white/10" : "hover:bg-white/5"
+                  currentSong?.id === song.id
+                    ? "bg-white/10"
+                    : "hover:bg-white/5"
                 }`}
               >
                 {/* Left Side: Cover & Text */}
@@ -265,12 +268,16 @@ function MusicLibrary() {
                   <div className="w-12 h-12 rounded-md bg-secondary flex items-center justify-center flex-shrink-0">
                     <Music className="w-6 h-6 text-white/50" />
                   </div>
-                  
+
                   {/* Title & Artist */}
                   <div className="flex flex-col min-w-0">
-                    <span className={`text-sm font-semibold truncate ${
-                      currentSong?.id === song.id ? "text-primary" : "text-white"
-                    }`}>
+                    <span
+                      className={`text-sm font-semibold truncate ${
+                        currentSong?.id === song.id
+                          ? "text-primary"
+                          : "text-white"
+                      }`}
+                    >
                       {song.title || "Unknown title"}
                     </span>
                     <span className="text-xs text-gray-400 truncate mt-0.5">
@@ -283,15 +290,20 @@ function MusicLibrary() {
                 <div className="flex items-center flex-shrink-0">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button 
-                        onClick={(e) => e.stopPropagation()} 
+                      <button
+                        onClick={(e) => e.stopPropagation()}
                         className="p-2 text-gray-400 hover:text-white"
                       >
                         <MoreHorizontal className="w-5 h-5" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40 bg-card border-white/10">
-                      <DropdownMenuItem className="cursor-pointer gap-2" onClick={(e) => {
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-40 bg-card border-white/10"
+                    >
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-2"
+                        onClick={(e) => {
                           e.stopPropagation();
                           const link = document.createElement("a");
                           link.href = song.file_url;
@@ -299,16 +311,20 @@ function MusicLibrary() {
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
-                      }}>
+                        }}
+                      >
                         <Download className="w-4 h-4" /> Download
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer gap-2 text-red-500 focus:text-red-500" onClick={async (e) => {
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-2 text-red-500 focus:text-red-500"
+                        onClick={async (e) => {
                           e.stopPropagation();
                           if (window.confirm("Delete this song?")) {
                             await api.deleteSong(song.id);
                             fetchSongs();
                           }
-                      }}>
+                        }}
+                      >
                         <Trash2 className="w-4 h-4" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -324,4 +340,3 @@ function MusicLibrary() {
 }
 
 export default MusicLibrary;
-
