@@ -106,4 +106,11 @@ export const api = {
     if (!res.ok) throw new Error('YouTube download failed');
     return res.json();
   },
+
+  // youtube search function
+  searchYoutube: async (query) => {
+    const res = await fetchWithAuth(`${API_URL}/api/youtube/search/?q=${encodeURIComponent(query)}`);
+    if (!res.ok) throw new Error('Search failed');
+    return res.json();
+  }
 };
