@@ -40,7 +40,6 @@ function MusicLibrary() {
     fetchSongs();
   }, []);
 
-
   // function to fetch songs
   const fetchSongs = async () => {
     try {
@@ -53,9 +52,6 @@ function MusicLibrary() {
       setLoading(false);
     }
   };
-
-
-
 
   useEffect(() => {
     fetchSongs();
@@ -82,16 +78,56 @@ function MusicLibrary() {
   }
 
   // filter songs
-  const filteredSongs = songs.filter(song => 
-    song.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    song.artist.toLowerCase().includes(searchQuery.toLowerCase())
-);
+  const filteredSongs = songs.filter(
+    (song) =>
+      song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      song.artist.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  // function to handle Youtube downloads
+  const handleYouTubeDownload = async () => {
+    const url = prompt("Enter YouTube URL:");
+    if (!url) return;
+
+    try {
+      // loading state here later
+      await api.downloadYouTube(url);
+      alert("YouTube song downloaded and added to your library!");
+      fetchSongs(); // Refresh the list
+    } catch (error) {
+      console.error(error);
+      alert("Failed to download. Check the console.");
+    }
+  };
 
   return (
     <div className="p-8 pt-0 text-white ml-0">
       <div className="flex justify-between items-center mb-6 max-w-[1040px]">
         <h2 className="text-xl font-bold">Your Library</h2>
-        <UploadButton onUploadSuccess={fetchSongs} />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleYouTubeDownload}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 font-medium rounded-full transition-colors"
+          >
+            {/* Using a simple SVG for YouTube icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="none"
+            >
+              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+              <polygon
+                points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"
+                fill="white"
+              ></polygon>
+            </svg>
+            <span>YouTube</span>
+          </button>
+          <UploadButton onUploadSuccess={fetchSongs} />
+        </div>
       </div>
 
       {songs.length === 0 ? (
@@ -123,7 +159,7 @@ function MusicLibrary() {
               {filteredSongs.map((song, index) => (
                 <TableRow
                   key={song.id}
-                  onClick={() =>playSong(song, songs)}
+                  onClick={() => playSong(song, songs)}
                   className="group border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   <TableCell className="font-medium text-gray-400 group-hover:text-white">
@@ -184,6 +220,6 @@ function MusicLibrary() {
       )}
     </div>
   );
-};
+}
 
 export default MusicLibrary;

@@ -92,5 +92,18 @@ export const api = {
     });
     if (!res.ok) throw new Error('Upload failed');
     return res.json();
-  }
+  },
+  
+  // handle youtube request
+    downloadYouTube: async (youtubeUrl) => {
+    const res = await fetchWithAuth(`${API_URL}/api/songs/youtube/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url: youtubeUrl })
+    });
+    if (!res.ok) throw new Error('YouTube download failed');
+    return res.json();
+  },
 };

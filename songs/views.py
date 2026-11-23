@@ -3,6 +3,7 @@ import time
 import yt_dlp
 import tempfile
 
+
 import boto3
 from botocore.config import Config
 from django.conf import settings
@@ -134,9 +135,6 @@ class SongListView(APIView):
 
 
 # Youtube DownloadView
-import yt_dlp
-import tempfile
-import os
 
 class YouTubeDownloadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -168,6 +166,7 @@ class YouTubeDownloadView(APIView):
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
                 }],
+                'js_runtimes': {'deno': {}}, 
                 'outtmpl': os.path.join(temp_dir, '%(title)s.%(ext)s'),
                 'quiet': True,
             }
@@ -232,3 +231,46 @@ class YouTubeDownloadView(APIView):
             except Exception as e:
                 print(f"YouTube Download Error: {e}")
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# youtube search view
+class YouTubeSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.query_params.get('q')
+        if not query:
+            return Response({"error": "Search query required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # yt-dlp to search YouTube and grab the top 5 results
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'js_runtimes': {'deno': {}}, 
+            'noplaylist': True,
+            'extract_flat': True, # <--- CRITICAL: search only, no download!
+            'quiet': True,
+        }
+
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                # ytsearch5: fetches the top 5 results
+                result = ydl.extract_info(f"ytsearch5:{query}", download=False)
+                
+                # Format the results for React
+                videos = result.get('entries', [])
+                formatted_results = []
+                for vid in videos:
+                    if vid:
+                        formatted_results.append({
+                            "id": vid.get('id'),
+                            "title": vid.get('title'),
+                            "uploader": vid.get('uploader'),
+                            "url": f"https://www.youtube.com/watch?v={vid.get('id')}",
+                            "duration": vid.get('duration')
+                        })
+                
+                return Response({"results": formatted_results}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
