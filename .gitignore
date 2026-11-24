@@ -33,3 +33,7 @@ Backend/__pycache__/
 .env
 Backend/.env
 db.sqlite3
+
+# Secrets
+cookies.txt
+Backend/cookies.txt

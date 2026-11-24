@@ -13,6 +13,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from yt_dlp.networking.impersonate import ImpersonateTarget
 
 from .models import Song
 
@@ -184,8 +185,7 @@ def get_yt_dlp_options(out_template=None, search_only=False):
     opts = {
         "quiet": True,
         "noplaylist": True,
-        "impersonate": "chrome",
-        "cookiefile": "Backend/cookies.txt",
+        # "impersonate": "chrome",
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "extractor_args": {
             "youtube": {
@@ -193,6 +193,9 @@ def get_yt_dlp_options(out_template=None, search_only=False):
             },
         },
     }
+
+    # LINE to properly convert the string to an ImpersonateTarget object
+    opts["impersonate"] = ImpersonateTarget.from_str("chrome")
 
     if search_only:
         opts["format"] = "bestaudio/best"
