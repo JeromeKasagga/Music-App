@@ -10,3 +10,4 @@ botocore
 yt-dlp
 ffmpeg-python
 gunicorn
+whitenoise

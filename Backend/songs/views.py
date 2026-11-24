@@ -71,10 +71,11 @@ class SongUploadView(APIView):
         duration = request.data.get("duration", "0:00")
 
         if not file:
-            file = compress_audio(file)
             return Response(
                 {"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        file = compress_audio(file)
 
         # Read env vars once and validate
         r2_endpoint = os.getenv("R2_ENDPOINT_URL")
