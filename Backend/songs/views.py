@@ -187,6 +187,8 @@ def get_yt_dlp_options(out_template=None, search_only=False):
     opts = {
         "quiet": True,
         "noplaylist": True,
+        "js_runtimes": {"deno": {}},  # Explicitly use Deno
+        "remote_components": ["ejs:npm"],
         # "impersonate": "chrome",
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "extractor_args": {

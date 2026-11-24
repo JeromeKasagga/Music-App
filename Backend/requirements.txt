@@ -12,3 +12,5 @@ ffmpeg-python
 gunicorn
 whitenoise
 curl-cffi 
+yt-dlp[default]
+curl-cffi
