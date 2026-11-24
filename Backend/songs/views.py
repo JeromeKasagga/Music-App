@@ -185,6 +185,8 @@ def get_yt_dlp_options(out_template=None, search_only=False):
         "quiet": True,
         "noplaylist": True,
         "impersonate": "chrome",
+        "cookiefile": "Backend/cookies.txt",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "extractor_args": {
             "youtube": {
                 "player_client": ["tv", "mweb"],
@@ -358,6 +360,10 @@ class YouTubeSearchView(APIView):
                 )
 
         except Exception as e:
+            import traceback
+
+            print("=== YOUTUBE SEARCH ERROR ===")
+            traceback.print_exc() 
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
