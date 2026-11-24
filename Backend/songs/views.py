@@ -3,6 +3,8 @@ import time
 import yt_dlp
 import tempfile
 import ffmpeg
+import shutil
+import tempfile
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -215,15 +217,25 @@ def get_yt_dlp_options(out_template=None, search_only=False):
     # Check for cookies: Render Secret File, custom env path, project root, or env string
     cookie_path = os.getenv("YOUTUBE_COOKIE_PATH", "/etc/secrets/cookies.txt")
     local_cookie = os.path.join(settings.BASE_DIR, "cookies.txt")
+
+    source_cookie = None
     if os.path.exists(cookie_path):
-        opts["cookiefile"] = cookie_path
+        source_cookie = cookie_path
     elif os.path.exists(local_cookie):
-        opts["cookiefile"] = local_cookie
+        source_cookie = local_cookie
     elif os.getenv("YOUTUBE_COOKIES_TEXT"):
-        cookie_temp = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
-        with open(cookie_temp, "w") as f:
+        # If using an env var string, write it to a temp file first
+        fd, temp_cookie = tempfile.mkstemp(prefix="yt_cookies_", suffix=".txt")
+        with os.fdopen(fd, "w") as f:
             f.write(os.getenv("YOUTUBE_COOKIES_TEXT"))
-        opts["cookiefile"] = cookie_temp
+        source_cookie = temp_cookie
+
+    if source_cookie:
+        # CRITICAL FIX: Copy the read-only cookie to a writable temp file
+        fd, writable_cookie = tempfile.mkstemp(prefix="yt_writable_", suffix=".txt")
+        os.close(fd)  # Close the file descriptor so yt-dlp can open it
+        shutil.copyfile(source_cookie, writable_cookie)
+        opts["cookiefile"] = writable_cookie
 
     return opts
 
@@ -366,7 +378,7 @@ class YouTubeSearchView(APIView):
             import traceback
 
             print("=== YOUTUBE SEARCH ERROR ===")
-            traceback.print_exc() 
+            traceback.print_exc()
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
