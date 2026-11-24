@@ -1,0 +1,12 @@
+django
+djangorestframework
+django-cors-headers
+dj-database-url
+psycopg[binary]
+python-dotenv
+djangorestframework-simplejwt
+boto3
+botocore
+yt-dlp
+ffmpeg-python
+gunicorn
