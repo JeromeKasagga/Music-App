@@ -10,8 +10,8 @@ import {
   MoreHorizontal,
   Heart,
 } from "lucide-react";
-import { PlayerContext } from "../context/PlayerContext";
-
+import { PlayerContext } from "@/Context/PlayerContext";
+g
 function PlayerBar() {
   const {
     currentSong,
