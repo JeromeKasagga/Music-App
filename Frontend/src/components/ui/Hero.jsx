@@ -1,8 +1,7 @@
 import { Play, Upload, Heart, Share2 } from "lucide-react";
 import heroBg from "../../assets/hero-bg.png";
 import { useContext } from "react";
-import { PlayerContext } from "../../context/PlayerContext";
-
+import { PlayerContext } from "@/Context/PlayerContext";
 export function Hero({ isCollapsed }) {
   const { currentSong } = useContext(PlayerContext);
 
