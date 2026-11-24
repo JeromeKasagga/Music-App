@@ -176,6 +176,49 @@ class SongListView(APIView):
         return Response(song_data)
 
 
+# Helper to build yt-dlp options with cookies and mobile client emulation
+def get_yt_dlp_options(out_template=None, search_only=False):
+    opts = {
+        "quiet": True,
+        "noplaylist": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "ios", "mweb"]
+            }
+        },
+    }
+
+    if search_only:
+        opts["format"] = "bestaudio/best"
+        opts["extract_flat"] = True
+    else:
+        opts["format"] = "bestaudio/best"
+        opts["postprocessors"] = [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }
+        ]
+        if out_template:
+            opts["outtmpl"] = out_template
+
+    # Check for cookies: Render Secret File, custom env path, project root, or env string
+    cookie_path = os.getenv("YOUTUBE_COOKIE_PATH", "/etc/secrets/cookies.txt")
+    local_cookie = os.path.join(settings.BASE_DIR, "cookies.txt")
+    if os.path.exists(cookie_path):
+        opts["cookiefile"] = cookie_path
+    elif os.path.exists(local_cookie):
+        opts["cookiefile"] = local_cookie
+    elif os.getenv("YOUTUBE_COOKIES_TEXT"):
+        cookie_temp = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
+        with open(cookie_temp, "w") as f:
+            f.write(os.getenv("YOUTUBE_COOKIES_TEXT"))
+        opts["cookiefile"] = cookie_temp
+
+    return opts
+
+
 # Youtube DownloadView
 class YouTubeDownloadView(APIView):
     permission_classes = [IsAuthenticated]
@@ -188,22 +231,9 @@ class YouTubeDownloadView(APIView):
             )
 
         # 1. Set up yt-dlp options
-        # Download to a temporary directory on the server
         temp_dir = tempfile.gettempdir()
-
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "192",
-                }
-            ],
-            "js_runtimes": {"deno": {}},
-            "outtmpl": os.path.join(temp_dir, "%(id)s.%(ext)s"),
-            "quiet": True,
-        }
+        out_template = os.path.join(temp_dir, "%(id)s.%(ext)s")
+        ydl_opts = get_yt_dlp_options(out_template=out_template, search_only=False)
 
         try:
             # 2. Download the audio
@@ -267,9 +297,18 @@ class YouTubeDownloadView(APIView):
             )
 
         except Exception as e:
-            print(f"YouTube Download Error: {e}")
+            err_str = str(e)
+            print(f"YouTube Download Error: {err_str}")
+            if "confirm you’re not a bot" in err_str or "confirm you're not a bot" in err_str or "bot" in err_str.lower():
+                return Response(
+                    {
+                        "error": "YouTube blocked this download request due to cloud IP bot verification. "
+                                 "Please configure a YouTube cookies file on the server or upload your MP3 directly."
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": err_str}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
@@ -284,14 +323,7 @@ class YouTubeSearchView(APIView):
                 {"error": "Search query required"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # yt-dlp to search YouTube and grab the top 5 results
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "js_runtimes": {"deno": {}},
-            "noplaylist": True,
-            "extract_flat": True,  # <--- CRITICAL: search only, no download!
-            "quiet": True,
-        }
+        ydl_opts = get_yt_dlp_options(search_only=True)
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
