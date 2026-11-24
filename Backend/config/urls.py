@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from Backend.songs.views import SongUploadView, SongListView, YouTubeDownloadView, YouTubeSearchView, SongDeleteView
+from songs.views import SongUploadView, SongListView, YouTubeDownloadView, YouTubeSearchView, SongDeleteView
 urlpatterns = [
     path("api/songs/youtube/", YouTubeDownloadView.as_view()),
 ]
