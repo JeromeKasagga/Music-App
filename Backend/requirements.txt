@@ -11,3 +11,4 @@ yt-dlp
 ffmpeg-python
 gunicorn
 whitenoise
+curl-cffi 

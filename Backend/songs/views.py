@@ -17,12 +17,13 @@ from rest_framework.views import APIView
 from .models import Song
 
 
-
 # Audio Compression view
 def compress_audio(uploaded_file):
     """Compresses an uploaded audio file to a high-quality MP3 using FFmpeg."""
     # Create temporary files to hold the original and compressed audio
-    with tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}") as temp_in:
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}"
+    ) as temp_in:
         for chunk in uploaded_file.chunks():
             temp_in.write(chunk)
         temp_in_path = temp_in.name
@@ -32,22 +33,21 @@ def compress_audio(uploaded_file):
     try:
         # Run FFmpeg: compress to MP3, Variable Bitrate -V2 (~190kbps)
         (
-            ffmpeg
-            .input(temp_in_path)
-            .output(temp_out_path, acodec='libmp3lame', **{'q:a': 2}, ar='44100')
+            ffmpeg.input(temp_in_path)
+            .output(temp_out_path, acodec="libmp3lame", **{"q:a": 2}, ar="44100")
             .overwrite_output()
             .run(quiet=True)
         )
 
         # Read the compressed file back into memory
-        with open(temp_out_path, 'rb') as f:
+        with open(temp_out_path, "rb") as f:
             compressed_content = f.read()
 
         # Create a new Django file object with the compressed content
         compressed_file = SimpleUploadedFile(
             name=f"{uploaded_file.name.rsplit('.', 1)[0]}.mp3",
             content=compressed_content,
-            content_type='audio/mpeg'
+            content_type="audio/mpeg",
         )
         return compressed_file
 
@@ -57,8 +57,11 @@ def compress_audio(uploaded_file):
 
     finally:
         # Clean up temporary files
-        if os.path.exists(temp_in_path): os.remove(temp_in_path)
-        if os.path.exists(temp_out_path): os.remove(temp_out_path)
+        if os.path.exists(temp_in_path):
+            os.remove(temp_in_path)
+        if os.path.exists(temp_out_path):
+            os.remove(temp_out_path)
+
 
 # Song Upload View
 class SongUploadView(APIView):
@@ -119,7 +122,7 @@ class SongUploadView(APIView):
                 file,
                 r2_bucket,
                 unique_filename,
-                ExtraArgs={"ContentType": "audio/mpeg"} # Force audio/mpeg
+                ExtraArgs={"ContentType": "audio/mpeg"},  # Force audio/mpeg
             )
 
             # 4. Construct the Public URL
@@ -181,10 +184,11 @@ def get_yt_dlp_options(out_template=None, search_only=False):
     opts = {
         "quiet": True,
         "noplaylist": True,
+        "impersonate": "chrome",
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "ios", "mweb"]
-            }
+                "player_client": ["tv", "mweb"],
+            },
         },
     }
 
@@ -274,7 +278,7 @@ class YouTubeDownloadView(APIView):
             song = Song.objects.create(
                 title=title,
                 artist=artist,
-                duration="0:00",  
+                duration="0:00",
                 file_url=public_url,
                 owner=request.user,
             )
@@ -299,11 +303,15 @@ class YouTubeDownloadView(APIView):
         except Exception as e:
             err_str = str(e)
             print(f"YouTube Download Error: {err_str}")
-            if "confirm you’re not a bot" in err_str or "confirm you're not a bot" in err_str or "bot" in err_str.lower():
+            if (
+                "confirm you’re not a bot" in err_str
+                or "confirm you're not a bot" in err_str
+                or "bot" in err_str.lower()
+            ):
                 return Response(
                     {
                         "error": "YouTube blocked this download request due to cloud IP bot verification. "
-                                 "Please configure a YouTube cookies file on the server or upload your MP3 directly."
+                        "Please configure a YouTube cookies file on the server or upload your MP3 directly."
                     },
                     status=status.HTTP_403_FORBIDDEN,
                 )
@@ -354,6 +362,7 @@ class YouTubeSearchView(APIView):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+
 # Deletefsunction
 class SongDeleteView(APIView):
 
@@ -362,7 +371,7 @@ class SongDeleteView(APIView):
     def delete(self, request, pk):
         try:
             song = Song.objects.get(id=pk, owner=request.user)
-            
+
             # 1. Delete from R2
             try:
                 # Connect to R2
@@ -373,23 +382,27 @@ class SongDeleteView(APIView):
                     aws_secret_access_key=os.getenv("R2_SECRET_ACCESS_KEY"),
                     config=Config(signature_version="s3v4"),
                 )
-                
+
                 # Extract the file key from the full public URL
                 r2_public_url = os.getenv("R2_PUBLIC_URL")
                 file_key = song.file_url.replace(f"{r2_public_url}/", "")
-                
+
                 # Delete the object from the bucket
                 s3_client.delete_object(
-                    Bucket=os.getenv("R2_BUCKET_NAME"),
-                    Key=file_key
+                    Bucket=os.getenv("R2_BUCKET_NAME"), Key=file_key
                 )
             except Exception as r2_error:
                 print(f"R2 Delete Error (ignoring and deleting DB record): {r2_error}")
 
             # 2. Delete from Database
             song.delete()
-            
-            return Response({"message": "Song and R2 file deleted"}, status=status.HTTP_204_NO_CONTENT)
-            
+
+            return Response(
+                {"message": "Song and R2 file deleted"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+
         except Song.DoesNotExist:
-            return Response({"error": "Song not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Song not found"}, status=status.HTTP_404_NOT_FOUND
+            )
