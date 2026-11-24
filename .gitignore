@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node
 node_modules
 dist
 dist-ssr
@@ -23,11 +24,12 @@ dist-ssr
 *.sln
 *.sw?
 
-
 # Django / Python
 .venv/
+Backend/.venv/
 __pycache__/
-*.__pyc
+*.pyc
+Backend/__pycache__/
 .env
+Backend/.env
 db.sqlite3
-
