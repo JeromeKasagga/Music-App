@@ -11,7 +11,7 @@ import {
   Heart,
 } from "lucide-react";
 import { PlayerContext } from "@/Context/PlayerContext";
-g
+
 function PlayerBar() {
   const {
     currentSong,
