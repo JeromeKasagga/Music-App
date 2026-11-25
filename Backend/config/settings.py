@@ -38,6 +38,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
 ]
 
+# Backend/your_project/settings.py
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0
+
 # Render sets this environment variable automatically
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:

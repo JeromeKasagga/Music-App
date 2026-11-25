@@ -25,47 +25,45 @@ from .models import Song
 
 # Audio Compression view
 def compress_audio(uploaded_file):
-    """Compresses an uploaded audio file to MP3 using a bundled FFmpeg binary."""
-    temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}")
+    """Compresses an uploaded audio file to MP3 on disk to stay under 512MB RAM."""
+    ext = uploaded_file.name.split(".")[-1]
+    temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}")
     temp_out_path = temp_in.name + "_compressed.mp3"
 
     try:
-        # Write the uploaded file to disk in chunks
         for chunk in uploaded_file.chunks():
             temp_in.write(chunk)
         temp_in.close()
 
-        # Get the path to the bundled FFmpeg binary
-        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
-
-        # Run FFmpeg via subprocess using the bundled binary
+        ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
         command = [
-            ffmpeg_exe,
+            ffmpeg_path,
+            "-threads", "1",      # Minimize FFmpeg RAM usage
             "-i", temp_in.name,
             "-acodec", "libmp3lame",
             "-q:a", "2",
             "-ar", "44100",
             temp_out_path,
-            "-y"
+            "-y",
         ]
-        subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-        with open(temp_out_path, "rb") as f:
-            compressed_content = f.read()
-
-        return SimpleUploadedFile(
-            name=f"{uploaded_file.name.rsplit('.', 1)[0]}.mp3",
-            content=compressed_content,
-            content_type="audio/mpeg",
+        subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
+
+        # Stream from disk instead of loading into RAM with f.read()
+        out_file = open(temp_out_path, "rb")
+        new_name = f"{uploaded_file.name.rsplit('.', 1)[0]}.mp3"
+        return File(out_file, name=new_name)
 
     except Exception as e:
         print(f"Compression failed: {e}")
         return uploaded_file
     finally:
-        if os.path.exists(temp_in.name): os.remove(temp_in.name)
-        if os.path.exists(temp_out_path): os.remove(temp_out_path)
-
+        if os.path.exists(temp_in.name):
+            os.remove(temp_in.name)
 
 # Song Upload View
 class SongUploadView(APIView):
