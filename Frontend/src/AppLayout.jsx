@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 
 function AppLayout() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -43,9 +43,7 @@ function AppLayout() {
     if (!mainElement) return;
 
     const handleScroll = () => {
-      const scrollTop = mainElement.scrollTop;
-      // Just check if we scrolled past 30px
-      setIsCollapsed(scrollTop > 30);
+      setScrollY(mainElement.scrollTop);
     };
 
     mainElement.addEventListener("scroll", handleScroll, { passive: true });
@@ -159,16 +157,17 @@ function AppLayout() {
           className="flex-1 overflow-y-auto relative pb-[100px] px-4"
         >
           {/* 
-    DYNAMIC WRAPPER:
-    When collapsed, it takes 18vh. When expanded, it takes 35vh.
-    This perfectly matches the Hero, killing the black gap.
+    DYNAMIC WRAPPER: height interpolates smoothly between 35vh (top) → 18vh (scrolled).
+    Transition is CSS-driven so it always matches the Hero inner height exactly — no gap, no shake.
   */}
           <div
-            className={`sticky top-0 z-20 w-full bg-background transition-all duration-500 ease-in-out
-      ${isCollapsed ? "h-[18vh]" : "h-[35vh]"}
-    `}
+            className="sticky top-0 z-20 w-full bg-background"
+            style={{
+              height: `${Math.max(18, 35 - scrollY * 0.17)}vh`,
+              transition: "height 0.05s linear",
+            }}
           >
-            <Hero isCollapsed={isCollapsed} />
+            <Hero scrollY={scrollY} />
           </div>
 
           <div className="relative z-10 pt-4">

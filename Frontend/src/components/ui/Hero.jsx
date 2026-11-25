@@ -2,82 +2,99 @@ import { Play, Upload, Heart, Share2 } from "lucide-react";
 import heroBg from "../../assets/hero-bg.png";
 import { useContext } from "react";
 import { PlayerContext } from "@/Context/PlayerContext";
-export function Hero({ isCollapsed }) {
+
+export function Hero({ scrollY = 0 }) {
   const { currentSong } = useContext(PlayerContext);
 
   const displayTitle = currentSong ? currentSong.title : "Your Music Library";
   const displayArtist = currentSong ? currentSong.artist : "Select a song to start playing";
 
+  // Continuous 0→1 progress over the first 120px of scroll — no binary snap = no shake
+  const progress = Math.min(1, scrollY / 120);
+  const isCollapsed = progress > 0.5;
+
+  // Smoothly interpolate font size and content opacity
+  const titleSize  = 3.5 - progress * 1.5;   // rem: 3.5 → 2.0
+  const buttonsOpacity = Math.max(0, 1 - progress * 2);
+  const iconsOpacity   = Math.max(0, 1 - progress * 2);
+
   return (
-    <div className="w-full h-[35vh] relative">
-      {/* The inner container changes height, but always stays 100% width */}
-      <div 
-        className={`w-full relative rounded-b-3xl overflow-hidden transition-all duration-300 ease-in-out
-          ${isCollapsed ? 'h-[18vh]' : 'h-full'}
-        `}
-      >
+    // Outer div fills the sticky wrapper exactly — no fixed height needed
+    <div className="w-full h-full relative">
+      <div className="w-full h-full relative rounded-b-3xl overflow-hidden">
         {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroBg})` }}
         />
 
-        {/* Gradients */}
+        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-background/40 to-background/90" />
 
         {/* Content */}
-        <div className="relative z-10 flex items-end justify-between h-full p-8 md:p-12">
-          
-          <div className="flex flex-col w-3/4">
-            <span 
-              className={`capitalize font-bold leading-tight text-white transition-all duration-300 line-clamp-1
-                ${isCollapsed ? 'text-3xl' : 'text-4xl md:text-6xl'}
-              `}
+        <div className="relative z-10 flex items-end justify-between h-full px-5 py-4 md:px-12 md:py-8">
+
+          <div className="flex flex-col min-w-0 flex-1 mr-3">
+            <span
+              className="capitalize font-bold leading-tight text-white line-clamp-1"
+              style={{ fontSize: `clamp(1.4rem, ${titleSize}rem, 3.5rem)` }}
             >
               {displayTitle}
             </span>
-            
-            <span 
-              className={`text-gray-300 transition-all duration-300 line-clamp-1
-                ${isCollapsed ? 'text-sm' : 'text-lg'}
-              `}
+
+            <span
+              className="text-gray-300 line-clamp-1 text-sm md:text-lg"
+              style={{ opacity: Math.max(0.4, 1 - progress * 1.5) }}
             >
               {displayArtist}
             </span>
 
-            {/* Buttons fade out and collapse their height when scrolling */}
-            <div 
-              className={`flex flex-row items-center gap-3 transition-all duration-300 overflow-hidden
-                ${isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-20 opacity-100 mt-2'}
-              `}
+            {/* Action buttons — fade + collapse smoothly */}
+            <div
+              className="flex flex-row flex-wrap items-center gap-2 mt-2 overflow-hidden"
+              style={{
+                opacity: buttonsOpacity,
+                maxHeight: `${(1 - progress) * 56}px`,
+                pointerEvents: isCollapsed ? "none" : "auto",
+              }}
             >
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('trigger-play-all'))}
-                className="flex items-center justify-center gap-2 bg-white text-black px-6 py-2 font-bold rounded-full hover:bg-primary hover:text-white transition-colors"
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent("trigger-play-all"))}
+                className="flex items-center justify-center gap-1.5 bg-white text-black
+                           px-4 py-2 text-sm font-bold rounded-full
+                           hover:bg-primary hover:text-white transition-colors
+                           whitespace-nowrap"
               >
-                <Play className="fill-current w-4 h-4" />
+                <Play className="fill-current w-3.5 h-3.5 shrink-0" />
                 <span>PLAY ALL</span>
               </button>
 
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('trigger-upload'))}
-                className="flex items-center justify-center gap-2 bg-black/50 border border-white/20 text-white px-6 py-2 font-bold rounded-full hover:bg-white/10 transition-colors"
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent("trigger-upload"))}
+                className="flex items-center justify-center gap-1.5 bg-black/50 border border-white/20 text-white
+                           px-4 py-2 text-sm font-bold rounded-full
+                           hover:bg-white/10 transition-colors
+                           whitespace-nowrap"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="w-3.5 h-3.5 shrink-0" />
                 <span>UPLOAD</span>
               </button>
             </div>
           </div>
 
-          {/* Right Icons fade out when collapsed */}
-          <div className={`flex flex-col gap-4 transition-all duration-300 overflow-hidden
-            ${isCollapsed ? 'opacity-0 translate-y-10' : 'opacity-100 translate-y-0'}
-          `}>
-            <button className="p-2 bg-primary/80 rounded-3xl w-10 h-10 hover:bg-primary transition-colors">
-              <Heart className="text-white w-6 h-6" />
+          {/* Right icon column — fade out when scrolled */}
+          <div
+            className="flex flex-col gap-3 shrink-0"
+            style={{
+              opacity: iconsOpacity,
+              pointerEvents: isCollapsed ? "none" : "auto",
+            }}
+          >
+            <button className="p-2 bg-primary/80 rounded-3xl w-9 h-9 md:w-10 md:h-10 hover:bg-primary transition-colors flex items-center justify-center">
+              <Heart className="text-white w-5 h-5" />
             </button>
-            <button className="p-2 bg-primary/80 rounded-3xl w-10 h-10 hover:bg-primary transition-colors">
-              <Share2 className="text-white w-6 h-6" />
+            <button className="p-2 bg-primary/80 rounded-3xl w-9 h-9 md:w-10 md:h-10 hover:bg-primary transition-colors flex items-center justify-center">
+              <Share2 className="text-white w-5 h-5" />
             </button>
           </div>
 

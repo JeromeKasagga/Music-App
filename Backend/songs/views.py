@@ -1,17 +1,8 @@
-import io
 import os
 import time
 import yt_dlp
 import tempfile
-import ffmpeg
-import shutil
-import imageio_ffmpeg
-import tempfile
 import subprocess
-
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.files import File
-
 
 import boto3
 from botocore.config import Config
@@ -21,55 +12,60 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from yt_dlp.networking.impersonate import ImpersonateTarget
+import imageio_ffmpeg
 
 from .models import Song
 
 
-# Audio Compression view
-def compress_audio(uploaded_file):
-    """Compresses an uploaded audio file to MP3 on disk to stay under 512MB RAM."""
-    ext = uploaded_file.name.split(".")[-1]
-    temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}")
-    temp_out_path = temp_in.name + "_compressed.mp3"
+def compress_to_temp(uploaded_file):
+    """
+    Write the upload to disk, run ffmpeg at 128kbps, return the output
+    temp file PATH (not loaded into RAM). Caller must delete it.
+    Returns (temp_out_path, error_string_or_None).
+    """
+    ext = os.path.splitext(uploaded_file.name)[-1].lower() or ".mp3"
+    temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+    temp_out_path = temp_in.name + "_out.mp3"
 
     try:
+        # Write upload chunks straight to disk — never held in RAM all at once
         for chunk in uploaded_file.chunks():
             temp_in.write(chunk)
         temp_in.close()
 
         ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
-        command = [
-            ffmpeg_path,
-            "-threads", "1",      # Minimize FFmpeg RAM usage
-            "-i", temp_in.name,
-            "-acodec", "libmp3lame",
-            "-q:a", "2",
-            "-ar", "44100",
-            temp_out_path,
-            "-y",
-        ]
-        subprocess.run(
-            command,
-            check=True,
+        result = subprocess.run(
+            [
+                ffmpeg_path,
+                "-threads", "1",        # single-threaded keeps RAM ~50-80 MB
+                "-i", temp_in.name,
+                "-vn",                  # drop any embedded video/cover track
+                "-acodec", "libmp3lame",
+                "-b:a", "128k",         # fixed 128 kbps — CD quality, ~1 MB/min
+                "-ar", "44100",
+                "-map_metadata", "-1",  # strip bulky YouTube metadata blocks
+                temp_out_path,
+                "-y",
+            ],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,     # capture stderr so we can log errors
         )
 
-        # Read compressed bytes then immediately clean up temp file — avoids open file handle leaks
-        with open(temp_out_path, "rb") as out_file:
-            compressed_data = out_file.read()
+        if result.returncode != 0:
+            err = result.stderr.decode(errors="replace")
+            print(f"[compress_to_temp] ffmpeg error:\n{err}")
+            return None, err
 
-        new_name = f"{uploaded_file.name.rsplit('.', 1)[0]}.mp3"
-        return File(io.BytesIO(compressed_data), name=new_name)
+        return temp_out_path, None
 
     except Exception as e:
-        print(f"Compression failed: {e}")
-        return uploaded_file
+        print(f"[compress_to_temp] exception: {e}")
+        return None, str(e)
     finally:
+        # Always remove the input temp file
         if os.path.exists(temp_in.name):
             os.remove(temp_in.name)
-        if os.path.exists(temp_out_path):
-            os.remove(temp_out_path)
+
 
 # Song Upload View
 class SongUploadView(APIView):
@@ -85,8 +81,6 @@ class SongUploadView(APIView):
             return Response(
                 {"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-        file = compress_audio(file)
 
         # Read env vars once and validate
         r2_endpoint = os.getenv("R2_ENDPOINT_URL")
@@ -112,6 +106,14 @@ class SongUploadView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+        # Compress to a temp file on disk (never loads whole file into RAM)
+        temp_out_path, err = compress_to_temp(file)
+        if temp_out_path is None:
+            return Response(
+                {"error": f"Audio compression failed: {err}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         # 1. Connect to Cloudflare R2 using boto3
         s3_client = boto3.client(
             "s3",
@@ -121,22 +123,28 @@ class SongUploadView(APIView):
             config=Config(signature_version="s3v4"),
         )
 
-        # 2. Create unique filename (Force .mp3 extension now)
+        # Always .mp3 after compression
         unique_filename = f"songs/{int(time.time())}_{title.replace(' ', '_')}.mp3"
 
         try:
-            # 3. Upload to R2
-            s3_client.upload_fileobj(
-                file,
-                r2_bucket,
-                unique_filename,
-                ExtraArgs={"ContentType": "audio/mpeg"},  # Force audio/mpeg
-            )
+            # 2. Stream compressed file directly into R2 — boto3 reads in 8 MB chunks,
+            #    so peak RAM = one chunk (~8 MB), never the whole file
+            with open(temp_out_path, "rb") as compressed:
+                s3_client.upload_fileobj(
+                    compressed,
+                    r2_bucket,
+                    unique_filename,
+                    ExtraArgs={"ContentType": "audio/mpeg"},
+                )
+        finally:
+            # Always clean up the compressed temp file, even on upload error
+            if os.path.exists(temp_out_path):
+                os.remove(temp_out_path)
 
-            # 4. Construct the Public URL
-            public_url = f"{r2_public_url}/{unique_filename}"
+        # 3. Construct the Public URL and save to DB
+        public_url = f"{r2_public_url}/{unique_filename}"
 
-            # 5. Save to DB
+        try:
             song = Song.objects.create(
                 title=title,
                 artist=artist,
@@ -144,25 +152,25 @@ class SongUploadView(APIView):
                 file_url=public_url,
                 owner=request.user,
             )
-
-            return Response(
-                {
-                    "message": "Upload successful!",
-                    "song": {
-                        "id": song.id,
-                        "title": song.title,
-                        "artist": song.artist,
-                        "url": public_url,
-                    },
-                },
-                status=status.HTTP_201_CREATED,
-            )
-
         except Exception as e:
-            print(f"R2 Upload Error: {e}")
+            print(f"[SongUploadView] DB error: {e}")
             return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "File uploaded but failed to save to database."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+        return Response(
+            {
+                "message": "Upload successful!",
+                "song": {
+                    "id": song.id,
+                    "title": song.title,
+                    "artist": song.artist,
+                    "url": public_url,
+                },
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 # Song List View
