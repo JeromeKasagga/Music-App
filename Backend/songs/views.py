@@ -1,3 +1,4 @@
+import io
 import os
 import time
 import yt_dlp
@@ -9,6 +10,7 @@ import tempfile
 import subprocess
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files import File
 
 
 import boto3
@@ -53,10 +55,12 @@ def compress_audio(uploaded_file):
             stderr=subprocess.DEVNULL,
         )
 
-        # Stream from disk instead of loading into RAM with f.read()
-        out_file = open(temp_out_path, "rb")
+        # Read compressed bytes then immediately clean up temp file — avoids open file handle leaks
+        with open(temp_out_path, "rb") as out_file:
+            compressed_data = out_file.read()
+
         new_name = f"{uploaded_file.name.rsplit('.', 1)[0]}.mp3"
-        return File(out_file, name=new_name)
+        return File(io.BytesIO(compressed_data), name=new_name)
 
     except Exception as e:
         print(f"Compression failed: {e}")
@@ -64,6 +68,8 @@ def compress_audio(uploaded_file):
     finally:
         if os.path.exists(temp_in.name):
             os.remove(temp_in.name)
+        if os.path.exists(temp_out_path):
+            os.remove(temp_out_path)
 
 # Song Upload View
 class SongUploadView(APIView):

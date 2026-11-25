@@ -39,7 +39,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Backend/your_project/settings.py
-FILE_UPLOAD_MAX_MEMORY_SIZE = 0
+FILE_UPLOAD_MAX_MEMORY_SIZE = 0       # Force all uploads to disk, never RAM
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576  # 1MB max for non-file POST data in RAM
 
 # Render sets this environment variable automatically
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
