@@ -4,6 +4,7 @@ import yt_dlp
 import tempfile
 import ffmpeg
 import shutil
+import imageio_ffmpeg
 import tempfile
 import subprocess
 
@@ -24,30 +25,31 @@ from .models import Song
 
 # Audio Compression view
 def compress_audio(uploaded_file):
-    """Compresses an uploaded audio file to MP3 using FFmpeg CLI (memory-efficient)."""
-    # Create temporary files
+    """Compresses an uploaded audio file to MP3 using a bundled FFmpeg binary."""
     temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}")
     temp_out_path = temp_in.name + "_compressed.mp3"
 
     try:
-        # Write the uploaded file to disk in chunks (crucial for low RAM)
+        # Write the uploaded file to disk in chunks
         for chunk in uploaded_file.chunks():
             temp_in.write(chunk)
         temp_in.close()
 
-        # Run FFmpeg via subprocess (much more memory efficient)
+        # Get the path to the bundled FFmpeg binary
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+
+        # Run FFmpeg via subprocess using the bundled binary
         command = [
-            "ffmpeg",
+            ffmpeg_exe,
             "-i", temp_in.name,
             "-acodec", "libmp3lame",
-            "-q:a", "2",    # VBR ~190kbps
-            "-ar", "44100", # Sample rate
+            "-q:a", "2",
+            "-ar", "44100",
             temp_out_path,
-            "-y"            # Overwrite
+            "-y"
         ]
         subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # Read compressed file back
         with open(temp_out_path, "rb") as f:
             compressed_content = f.read()
 

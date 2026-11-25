@@ -14,3 +14,4 @@ whitenoise
 curl-cffi 
 yt-dlp[default]
 curl-cffi
+imageio-ffmpeg
