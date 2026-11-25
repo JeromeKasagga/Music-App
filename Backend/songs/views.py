@@ -5,6 +5,8 @@ import tempfile
 import ffmpeg
 import shutil
 import tempfile
+import subprocess
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -22,48 +24,45 @@ from .models import Song
 
 # Audio Compression view
 def compress_audio(uploaded_file):
-    """Compresses an uploaded audio file to a high-quality MP3 using FFmpeg."""
-    # Create temporary files to hold the original and compressed audio
-    with tempfile.NamedTemporaryFile(
-        delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}"
-    ) as temp_in:
-        for chunk in uploaded_file.chunks():
-            temp_in.write(chunk)
-        temp_in_path = temp_in.name
-
-    temp_out_path = temp_in_path + "_compressed.mp3"
+    """Compresses an uploaded audio file to MP3 using FFmpeg CLI (memory-efficient)."""
+    # Create temporary files
+    temp_in = tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}")
+    temp_out_path = temp_in.name + "_compressed.mp3"
 
     try:
-        # Run FFmpeg: compress to MP3, Variable Bitrate -V2 (~190kbps)
-        (
-            ffmpeg.input(temp_in_path)
-            .output(temp_out_path, acodec="libmp3lame", **{"q:a": 2}, ar="44100")
-            .overwrite_output()
-            .run(quiet=True)
-        )
+        # Write the uploaded file to disk in chunks (crucial for low RAM)
+        for chunk in uploaded_file.chunks():
+            temp_in.write(chunk)
+        temp_in.close()
 
-        # Read the compressed file back into memory
+        # Run FFmpeg via subprocess (much more memory efficient)
+        command = [
+            "ffmpeg",
+            "-i", temp_in.name,
+            "-acodec", "libmp3lame",
+            "-q:a", "2",    # VBR ~190kbps
+            "-ar", "44100", # Sample rate
+            temp_out_path,
+            "-y"            # Overwrite
+        ]
+        subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        # Read compressed file back
         with open(temp_out_path, "rb") as f:
             compressed_content = f.read()
 
-        # Create a new Django file object with the compressed content
-        compressed_file = SimpleUploadedFile(
+        return SimpleUploadedFile(
             name=f"{uploaded_file.name.rsplit('.', 1)[0]}.mp3",
             content=compressed_content,
             content_type="audio/mpeg",
         )
-        return compressed_file
 
     except Exception as e:
         print(f"Compression failed: {e}")
-        return uploaded_file  # Return the original if compression fails
-
+        return uploaded_file
     finally:
-        # Clean up temporary files
-        if os.path.exists(temp_in_path):
-            os.remove(temp_in_path)
-        if os.path.exists(temp_out_path):
-            os.remove(temp_out_path)
+        if os.path.exists(temp_in.name): os.remove(temp_in.name)
+        if os.path.exists(temp_out_path): os.remove(temp_out_path)
 
 
 # Song Upload View

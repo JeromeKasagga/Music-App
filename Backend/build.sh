@@ -2,6 +2,10 @@
 # Exit on error
 set -o errexit
 
+# Install FFmpeg system dependency
+apt-get update
+apt-get install -y ffmpeg
+
 pip install -r requirements.txt
 
 python manage.py collectstatic --no-input
