@@ -7,9 +7,13 @@
 A full-stack music streaming platform where users can sign in, manage a library, and stream audio. 
 
 <img width="1385" height="849" alt="Screenshot 2026-11-28 at 01 06 06" src="https://github.com/user-attachments/assets/d39cce31-f170-4a3d-bbb3-660a8eee1fc5" />
+
 <img width="1385" height="849" alt="Screenshot 2026-11-28 at 01 06 32" src="https://github.com/user-attachments/assets/d357e700-8c91-4f8c-a62b-b74318a424fc" />
+
 <img width="1385" height="849" alt="Screenshot 2026-11-28 at 01 06 46" src="https://github.com/user-attachments/assets/ebaa86d0-2073-4101-828c-6098fea5dcf5" />
+
 <img width="1385" height="849" alt="Screenshot 2026-11-28 at 01 07 18" src="https://github.com/user-attachments/assets/0604937f-01de-4cb4-8a03-deb6ee29af2c" />
+
 <img width="1385" height="849" alt="Screenshot 2026-11-28 at 01 07 31" src="https://github.com/user-attachments/assets/1aabb9c7-f031-433f-80f0-ee8db4fabb2c" />
 
 
